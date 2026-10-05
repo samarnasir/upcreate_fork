@@ -7,10 +7,10 @@ export default function Loading() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="h-28 rounded-2xl border border-border/15 bg-card/40" />
+          <div key={i} className="h-28 rounded-[28px] border border-border/15 bg-card/40" />
         ))}
       </div>
-      <div className="h-64 rounded-2xl border border-border/15 bg-card/40" />
+      <div className="h-64 rounded-[28px] border border-border/15 bg-card/40" />
     </div>
   );
 }

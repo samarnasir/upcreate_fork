@@ -69,7 +69,7 @@ export default function Tutorial() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-      <div className="w-full max-w-md rounded-2xl border border-border/15 bg-card p-6">
+      <div className="w-full max-w-md rounded-[28px] border border-border/15 bg-card p-6">
         <div className="text-xs text-muted tracking-widest uppercase mb-2">
           {step + 1} / {STEPS.length}
         </div>

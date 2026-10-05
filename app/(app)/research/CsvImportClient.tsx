@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { createOutliersBulk, BulkOutlierRow } from "@/lib/actions";
 import { Card, Badge } from "@/app/components/ui";
 
-const inputClass = "w-full rounded-lg border border-border/15 bg-foreground/95 text-background text-sm p-2.5";
+const inputClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
 
 const VIEWS_ALIASES = ["views", "view count", "video_view_count", "play_count", "plays", "video views"];
 const LINK_ALIASES = ["link", "url", "permalink", "post url", "shortcode", "video url"];
@@ -197,7 +197,7 @@ export default function CsvImportClient() {
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm">
               Parsed <span className="font-medium">{preview.length}</span> rows,{" "}
-              <span className="font-medium text-accent">{preview.filter((r) => r.isOutlier).length}</span> are 5x+ outliers.
+              <span className="font-medium text-foreground font-medium">{preview.filter((r) => r.isOutlier).length}</span> are 5x+ outliers.
             </p>
             <label className="flex items-center gap-2 text-xs text-muted">
               <input type="checkbox" checked={onlyOutliers} onChange={(e) => setOnlyOutliers(e.target.checked)} />
@@ -226,7 +226,7 @@ export default function CsvImportClient() {
         </>
       )}
 
-      {saved !== null && <p className="text-xs text-accent mt-3">Imported {saved} outlier{saved === 1 ? "" : "s"} ✓</p>}
+      {saved !== null && <p className="text-xs text-foreground font-medium mt-3">Imported {saved} outlier{saved === 1 ? "" : "s"} ✓</p>}
     </Card>
   );
 }

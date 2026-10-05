@@ -34,7 +34,7 @@ export default async function ResearchPage() {
   ]);
   const keywordPrompt = buildKeywordBankPrompt(brand);
 
-  const inputClass = "w-full rounded-lg border border-border/15 bg-foreground/95 text-background text-sm p-2.5";
+  const inputClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
   const selectClass = inputClass;
 
   return (
@@ -148,7 +148,7 @@ export default async function ResearchPage() {
                     <div className="text-sm">
                       <span className="font-medium">{r.creator_handle || r.niche_keyword || "(untitled)"}</span>
                       {r.link && (
-                        <a href={r.link} target="_blank" className="text-accent text-xs ml-2">
+                        <a href={r.link} target="_blank" className="text-foreground font-medium text-xs ml-2">
                           link
                         </a>
                       )}

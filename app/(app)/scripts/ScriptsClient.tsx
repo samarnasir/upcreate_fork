@@ -38,7 +38,7 @@ type TemplateRow = {
   template_text: string;
 };
 
-const inputClass = "w-full rounded-lg border border-border/15 bg-foreground/95 text-background text-sm p-2.5";
+const inputClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
 
 export default function ScriptsClient({
   brand,
@@ -428,11 +428,11 @@ function BankTab({ scripts, templates }: { scripts: ScriptRow[]; templates: Temp
             <textarea name="body_black" rows={4} className={inputClass} />
           </div>
           <div className="md:col-span-2">
-            <label className="text-xs block mb-1 text-red-400">● Red — physical actions / camera moves</label>
+            <label className="text-xs block mb-1 text-red-700">● Red — physical actions / camera moves</label>
             <textarea name="body_red" rows={3} className={inputClass} />
           </div>
           <div className="md:col-span-2">
-            <label className="text-xs block mb-1 text-green-400">● Green — editing / graphic instructions</label>
+            <label className="text-xs block mb-1 text-green-700">● Green — editing / graphic instructions</label>
             <textarea name="body_green" rows={3} className={inputClass} />
           </div>
           <div className="md:col-span-2">
@@ -471,13 +471,13 @@ function BankTab({ scripts, templates }: { scripts: ScriptRow[]; templates: Temp
                     ) : (
                       <>
                         {body.body_black && <p><span className="text-foreground font-medium">Black:</span> <span className="text-muted whitespace-pre-wrap">{body.body_black}</span></p>}
-                        {body.body_red && <p><span className="text-red-400 font-medium">Red:</span> <span className="text-muted whitespace-pre-wrap">{body.body_red}</span></p>}
-                        {body.body_green && <p><span className="text-green-400 font-medium">Green:</span> <span className="text-muted whitespace-pre-wrap">{body.body_green}</span></p>}
+                        {body.body_red && <p><span className="text-red-700 font-medium">Red:</span> <span className="text-muted whitespace-pre-wrap">{body.body_red}</span></p>}
+                        {body.body_green && <p><span className="text-green-700 font-medium">Green:</span> <span className="text-muted whitespace-pre-wrap">{body.body_green}</span></p>}
                       </>
                     )}
                   </div>
                   <div className="mt-3 flex items-center gap-3">
-                    <a href={`/api/export/script/${s.id}`} className="text-xs text-accent hover:underline">
+                    <a href={`/api/export/script/${s.id}`} className="text-xs text-foreground font-medium hover:underline">
                       Export to Word
                     </a>
                     <DeleteForm action={deleteScript} id={s.id} />

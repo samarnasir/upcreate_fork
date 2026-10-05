@@ -45,8 +45,8 @@ export default async function BrandPage() {
             {PROFILE_RIGHT_WRONG.map((r) => (
               <li key={r.field} className="border-b border-border/10 pb-2 last:border-0">
                 <div className="font-medium">{r.field}</div>
-                <div className="text-red-400/80">✗ {r.wrong}</div>
-                <div className="text-accent">✓ {r.right}</div>
+                <div className="text-red-700/80">✗ {r.wrong}</div>
+                <div className="text-foreground font-medium">✓ {r.right}</div>
               </li>
             ))}
           </ul>

@@ -18,7 +18,7 @@ export type ExistingScript = {
   funnel_stage: string;
 };
 
-const selectClass = "w-full rounded-lg border border-border/15 bg-foreground/95 text-background text-sm p-2.5";
+const selectClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
 const inputClass = selectClass;
 
 export default function ImproveClient({ brand, scripts }: { brand: BrandConfig; scripts: ExistingScript[] }) {

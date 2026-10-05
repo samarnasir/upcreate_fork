@@ -61,7 +61,7 @@ export function ResetCalendarButton({ itemCount }: { itemCount: number }) {
         }
       }}
     >
-      <button className="rounded-full border border-red-400/40 text-red-400/90 text-sm font-medium px-4 py-2 hover:bg-red-400/10">
+      <button className="rounded-full border border-red-400/40 text-red-700/90 text-sm font-medium px-4 py-2 hover:bg-red-400/10">
         Reset calendar ({itemCount} items)
       </button>
     </form>
@@ -198,7 +198,7 @@ export default function CalendarClient({ items, scripts }: { items: CalendarItem
                     : "border-border/10 hover:bg-foreground/5"
                 }`}
               >
-                <span className={isToday ? "font-semibold" : ""}>{cell.day}</span>
+                <span className={isToday ? "font-medium" : ""}>{cell.day}</span>
                 {dayItems.length > 0 && (
                   <span className="flex flex-wrap justify-center gap-0.5">
                     {dayItems.slice(0, 3).map((it) => (
@@ -247,7 +247,7 @@ export default function CalendarClient({ items, scripts }: { items: CalendarItem
                     <select
                       name="status"
                       defaultValue={item.status}
-                      className="rounded-full border border-border/15 bg-foreground/95 text-background text-xs px-2 py-1"
+                      className="rounded-full border border-border/15 bg-white text-foreground text-xs px-2 py-1"
                     >
                       {CALENDAR_STATUSES.map((s) => (
                         <option key={s} value={s}>
@@ -272,12 +272,12 @@ export default function CalendarClient({ items, scripts }: { items: CalendarItem
             value={scriptSearch}
             onChange={(e) => setScriptSearch(e.target.value)}
             placeholder="Search by script name..."
-            className="w-full rounded-lg border border-border/15 bg-foreground/95 text-background text-sm p-2.5 mb-2"
+            className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5 mb-2"
           />
           <select
             value={selectedScriptId}
             onChange={(e) => setSelectedScriptId(e.target.value)}
-            className="w-full rounded-lg border border-border/15 bg-foreground/95 text-background text-sm p-2.5 mb-1"
+            className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5 mb-1"
           >
             <option value="">-- pick a script ({filteredScripts.length} of {scripts.length}) --</option>
             {filteredScripts.map((s) => (

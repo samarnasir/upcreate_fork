@@ -104,7 +104,7 @@ export default async function DashboardPage() {
       <Card className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-heading text-2xl">Upcoming in the batch</h2>
-          <Link href="/calendar" className="text-sm text-accent">Open calendar →</Link>
+          <Link href="/calendar" className="text-sm text-foreground font-medium">Open calendar →</Link>
         </div>
         {upcoming.length === 0 ? (
           <p className="text-sm text-muted">No calendar items yet. Head to Calendar & Batching to plan your first batch.</p>

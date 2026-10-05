@@ -11,7 +11,7 @@ export default function HookGenerator({ brand }: { brand: BrandConfig }) {
   const [angle, setAngle] = useState("");
 
   const prompt = buildHookStackPrompt(brand, { topic: topic || "(enter a topic below)", angle });
-  const inputClass = "w-full rounded-lg border border-border/15 bg-foreground/95 text-background text-sm p-2.5";
+  const inputClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
 
   return (
     <div>

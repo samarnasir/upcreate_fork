@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { bulkImportScriptsAction, type BulkImportResult } from "@/lib/bulk-import-actions";
 
-const inputClass = "w-full rounded-lg border border-border/15 bg-foreground/95 text-background text-sm p-2.5";
+const inputClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
 
 export default function BulkImportClient() {
   const [result, formAction, pending] = useActionState<BulkImportResult | null, FormData>(
@@ -17,7 +17,7 @@ export default function BulkImportClient() {
         Paste multiple scripts at once, each one separated by a line containing just <code>---</code>. Every script
         is automatically classified (pillar, content type, angle, format, CTA, funnel stage, effort, topic) using
         whatever AI provider is connected in{" "}
-        <a href="/settings" className="text-accent underline">
+        <a href="/settings" className="text-foreground font-medium underline">
           Settings
         </a>
         , then saved straight into the Script Library. Without a provider connected, scripts still import with

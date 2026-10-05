@@ -15,7 +15,7 @@ export default function LoginForm() {
           name="email"
           autoFocus
           required
-          className="w-full rounded-lg border border-border/15 bg-foreground/95 text-background text-sm p-2.5"
+          className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5"
         />
       </div>
       <div>
@@ -24,10 +24,10 @@ export default function LoginForm() {
           type="password"
           name="password"
           required
-          className="w-full rounded-lg border border-border/15 bg-foreground/95 text-background text-sm p-2.5"
+          className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5"
         />
       </div>
-      {state?.error && <p className="text-xs text-red-400">{state.error}</p>}
+      {state?.error && <p className="text-xs text-red-700">{state.error}</p>}
       <button disabled={pending} className="w-full rounded-full bg-accent text-accent-deep text-sm font-medium px-4 py-2.5 disabled:opacity-60">
         {pending ? "Signing in..." : "Sign in"}
       </button>

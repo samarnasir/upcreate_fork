@@ -95,7 +95,7 @@ export default async function CarouselLibraryPage() {
       {carousels.length === 0 ? (
         <p className="text-sm text-muted">
           No carousels yet -- generate one in{" "}
-          <a href="/carousels" className="text-accent underline">
+          <a href="/carousels" className="text-foreground font-medium underline">
             Carousel Studio
           </a>
           .

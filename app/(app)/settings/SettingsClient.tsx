@@ -19,7 +19,7 @@ export default function SettingsClient({
   const [provider, setProvider] = useState(settings.provider);
   const [saved, setSaved] = useState(false);
 
-  const inputClass = "w-full rounded-lg border border-border/15 bg-foreground/95 text-background text-sm p-2.5";
+  const inputClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
 
   return (
     <form
@@ -87,7 +87,7 @@ export default function SettingsClient({
         <button className="rounded-full bg-accent text-accent-deep text-sm font-medium px-4 py-2">
           Save connection
         </button>
-        {saved && <span className="text-xs text-accent">Saved ✓</span>}
+        {saved && <span className="text-xs text-foreground font-medium">Saved ✓</span>}
       </div>
     </form>
   );
@@ -97,7 +97,7 @@ export function RemoveKeyButton({ hasKey }: { hasKey: boolean }) {
   if (!hasKey) return null;
   return (
     <form action={clearAiKeyAction} className="mt-3">
-      <button className="text-xs text-red-400/70 hover:text-red-400">Remove stored key</button>
+      <button className="text-xs text-red-700 hover:text-red-700">Remove stored key</button>
     </form>
   );
 }

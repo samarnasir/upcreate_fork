@@ -42,7 +42,7 @@ export default async function ProductionPage() {
           <ul className="space-y-1.5 text-sm">
             {brand.equipment.map((e) => (
               <li key={e} className="flex items-center gap-2">
-                <span className="text-accent">✓</span> {e}
+                <span className="text-foreground font-medium">✓</span> {e}
               </li>
             ))}
           </ul>

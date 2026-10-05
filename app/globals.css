@@ -1,13 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #271d17;
-  --foreground: #efe4d2;
-  --muted: #b9a384;
-  --border: #efe4d2;
-  --accent: #9db0ff;
-  --accent-deep: #1d3593;
-  --card: #33261e;
+  /* Perk-style palette: electric lime on warm parchment */
+  --background: #ffffff;
+  --foreground: #14140f;
+  --muted: #6e6e64;
+  --border: #14140f;
+  --accent: #beff50;
+  --accent-deep: #14140f;
+  --card: #f5f5eb;
+  --ash: #d2d2c8;
+  --charcoal: #30302a;
 }
 
 @theme inline {
@@ -18,6 +21,9 @@
   --color-accent: var(--accent);
   --color-accent-deep: var(--accent-deep);
   --color-card: var(--card);
+  --color-ash: var(--ash);
+  --color-deep-charcoal: var(--charcoal);
+  --color-off-white: var(--card);
   --font-heading: "Geist", sans-serif;
   --font-sans: "Geist", sans-serif;
 }
@@ -30,8 +36,8 @@ body {
 
 h1, h2, h3, .font-heading {
   font-family: "Geist", sans-serif;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-weight: 500;
+  letter-spacing: -0.03em;
 }
 
 ::selection {
@@ -40,7 +46,13 @@ h1, h2, h3, .font-heading {
 }
 
 input, textarea, select {
-  color: var(--background);
+  color: var(--foreground);
+  border-color: var(--ash) !important;
+  border-radius: 8px !important;
+}
+
+::selection {
+  color: var(--foreground);
 }
 
 * {
@@ -52,7 +64,7 @@ a, button {
 }
 
 input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--foreground);
   outline-offset: 2px;
 }
 

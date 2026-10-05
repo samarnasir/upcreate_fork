@@ -46,7 +46,7 @@ export default async function LibraryPage() {
         description="Every script from every batch, in one place -- filter by funnel stage, detail level, topic, and format."
       />
 
-      <details className="mb-6 rounded-2xl border border-border/15 bg-card/40">
+      <details className="mb-6 rounded-[28px] border border-border/15 bg-card/40">
         <summary className="cursor-pointer select-none px-5 py-4 font-heading text-lg">Bulk import scripts</summary>
         <div className="px-5 pb-5">
           <BulkImportClient />
@@ -71,11 +71,11 @@ export default async function LibraryPage() {
         <Card>
           <p className="text-sm text-muted">
             No scripts yet -- import a batch from the{" "}
-            <a href="/calendar" className="text-accent underline">
+            <a href="/calendar" className="text-foreground font-medium underline">
               Calendar
             </a>{" "}
             page, or add one manually in{" "}
-            <a href="/scripts" className="text-accent underline">
+            <a href="/scripts" className="text-foreground font-medium underline">
               Script Studio
             </a>
             .

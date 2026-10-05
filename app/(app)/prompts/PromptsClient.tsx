@@ -34,7 +34,7 @@ import {
 import { Card, Badge, SubTabs } from "@/app/components/ui";
 import PromptRunner from "@/app/components/PromptRunner";
 
-const inputClass = "w-full rounded-lg border border-border/15 bg-foreground/95 text-background text-sm p-2.5";
+const inputClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
 
 const DIRECTORY = [
   { label: "Content Calendar", where: "/calendar", note: "Full batch planner + ratio tracker" },
@@ -212,14 +212,14 @@ function HooksScriptsTab({ brand }: { brand: BrandConfig }) {
           </select>
         </div>
         <PromptRunner prompt={buildHookStackPrompt(brand, { topic: topic || "(enter a topic above)", angle })} label="Generate hook stacks" />
-        <p className="text-xs text-muted mt-3">Full builder with a saveable hook library lives in the <a href="/hooks" className="text-accent">Hook Lab</a>.</p>
+        <p className="text-xs text-muted mt-3">Full builder with a saveable hook library lives in the <a href="/hooks" className="text-foreground font-medium">Hook Lab</a>.</p>
       </Card>
 
       <Card>
         <h3 className="font-heading text-xl mb-3">Signature series — &quot;How to Enter an Industry&quot;</h3>
         <input value={industry} onChange={(e) => setIndustry(e.target.value)} placeholder="Industry" className={`${inputClass} mb-3`} />
         <PromptRunner prompt={buildIndustryEntrySeriesPrompt(brand, { industry: industry || "(enter above)", episodes: 5 })} label="Design series" />
-        <p className="text-xs text-muted mt-3">Full script generators (authority, storytelling, transcript templatizer) live in <a href="/scripts" className="text-accent">Script Studio</a>.</p>
+        <p className="text-xs text-muted mt-3">Full script generators (authority, storytelling, transcript templatizer) live in <a href="/scripts" className="text-foreground font-medium">Script Studio</a>.</p>
       </Card>
     </div>
   );
@@ -267,13 +267,13 @@ function CaptionsCtaTab({ brand }: { brand: BrandConfig }) {
           prompt={buildCalendarIdeationPrompt(brand, { count: 12, pillarRatio: brand.pillarRatio, conceptRatio: brand.conceptRatio })}
           label="Propose 12 topics"
         />
-        <p className="text-xs text-muted mt-3">Full planner + ratio tracker lives in the <a href="/calendar" className="text-accent">Calendar</a>.</p>
+        <p className="text-xs text-muted mt-3">Full planner + ratio tracker lives in the <a href="/calendar" className="text-foreground font-medium">Calendar</a>.</p>
       </Card>
 
       <Card>
         <h3 className="font-heading text-xl mb-3">Double-down variant generator</h3>
         <DoubleDownInline brand={brand} />
-        <p className="text-xs text-muted mt-3">Pull directly from logged posts in <a href="/analytics" className="text-accent">Analytics</a>.</p>
+        <p className="text-xs text-muted mt-3">Pull directly from logged posts in <a href="/analytics" className="text-foreground font-medium">Analytics</a>.</p>
       </Card>
     </div>
   );
@@ -364,7 +364,7 @@ function ReferenceTab() {
       <Card>
         <h3 className="font-heading text-xl mb-3">Transcript templatizing prompt</h3>
         <p className="text-sm text-muted">{TRANSCRIPT_TEMPLATIZE_PROMPT}</p>
-        <p className="text-xs text-muted mt-2">Run this in <a href="/scripts" className="text-accent">Script Studio → Transcript → Template</a>.</p>
+        <p className="text-xs text-muted mt-2">Run this in <a href="/scripts" className="text-foreground font-medium">Script Studio → Transcript → Template</a>.</p>
       </Card>
 
       <Card>
@@ -441,8 +441,8 @@ function ReferenceTab() {
           {PROFILE_RIGHT_WRONG.map((r) => (
             <li key={r.field} className="border-b border-border/10 pb-2 last:border-0">
               <div className="font-medium">{r.field}</div>
-              <div className="text-red-400/80">✗ {r.wrong}</div>
-              <div className="text-accent">✓ {r.right}</div>
+              <div className="text-red-700/80">✗ {r.wrong}</div>
+              <div className="text-foreground font-medium">✓ {r.right}</div>
             </li>
           ))}
         </ul>

@@ -28,7 +28,7 @@ export default async function ImprovePage() {
         description="Hand over an existing script -- pasted, or pulled from your library -- and get a diagnose-first, targeted rewrite grounded in every angle, format, funnel stage, and CTA rule this app tracks."
       />
 
-      <details className="mb-8 rounded-2xl border border-border/15 bg-card/40">
+      <details className="mb-8 rounded-[28px] border border-border/15 bg-card/40">
         <summary className="cursor-pointer select-none px-5 py-4 font-heading text-xl">
           Reference: every angle, format, funnel stage &amp; CTA style
         </summary>

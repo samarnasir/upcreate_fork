@@ -15,7 +15,7 @@ export default function DoubleDownClient({ brand, posts }: { brand: BrandConfig;
   const selected = posts.find((p) => String(p.id) === postId);
   const topic = selected?.title || "";
   const prompt = buildDoubleDownPrompt(brand, { topic: topic || "(pick or type a topic)", hook, format });
-  const inputClass = "w-full rounded-lg border border-border/15 bg-foreground/95 text-background text-sm p-2.5";
+  const inputClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
 
   return (
     <div>

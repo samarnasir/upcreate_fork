@@ -26,7 +26,7 @@ export default function BrandForm({ brand }: { brand: BrandConfig }) {
     setTimeout(() => setSaved(false), 2000);
   }
 
-  const inputClass = "w-full rounded-lg border border-border/15 bg-foreground/95 text-background text-sm p-2.5";
+  const inputClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
   const labelClass = "text-xs uppercase tracking-wide text-muted mb-1 block";
 
   return (

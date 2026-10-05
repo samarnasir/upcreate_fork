@@ -17,7 +17,7 @@ import PromptRunner from "@/app/components/PromptRunner";
 
 type CarouselRow = { id: number; title: string; archetype: string; status: string; slide_count: number };
 
-const inputClass = "w-full rounded-lg border border-border/15 bg-foreground/95 text-background text-sm p-2.5";
+const inputClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
 
 export default function CarouselsClient({ brand, carousels }: { brand: BrandConfig; carousels: CarouselRow[] }) {
   const [tab, setTab] = useState("generate");

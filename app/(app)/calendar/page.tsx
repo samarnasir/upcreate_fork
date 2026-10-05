@@ -125,7 +125,7 @@ export default async function CalendarPage() {
     conceptRatio: brand.conceptRatio,
   });
 
-  const selectClass = "w-full rounded-lg border border-border/15 bg-foreground/95 text-background text-sm p-2.5";
+  const selectClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
   const inputClass = selectClass;
 
   return (
@@ -160,7 +160,7 @@ export default async function CalendarPage() {
         </Card>
       </div>
 
-      <details className="mb-8 rounded-2xl border border-border/15 bg-card/40">
+      <details className="mb-8 rounded-[28px] border border-border/15 bg-card/40">
         <summary className="cursor-pointer select-none px-5 py-4 font-heading text-xl flex items-center justify-between">
           <span>Import content batches</span>
           <span className="text-xs text-muted font-sans font-normal">
@@ -268,7 +268,7 @@ export default async function CalendarPage() {
           {SEGMENTS_BATCH.filter((s) => s.funnelStage === "mofu").length} / BOFU{" "}
           {SEGMENTS_BATCH.filter((s) => s.funnelStage === "bofu").length} · scheduled weekly starting{" "}
           {segmentsStartDate}, continuing right after the commentary batch. Use the{" "}
-          <a href="/library" className="text-accent underline">
+          <a href="/library" className="text-foreground font-medium underline">
             Script Library
           </a>{" "}
           to browse and filter every batch together once imported.
@@ -518,7 +518,7 @@ export default async function CalendarPage() {
         </div>
       </details>
 
-      <details className="mb-8 rounded-2xl border border-border/15 bg-card/40">
+      <details className="mb-8 rounded-[28px] border border-border/15 bg-card/40">
         <summary className="cursor-pointer select-none px-5 py-4 font-heading text-xl">Add a single item manually</summary>
         <div className="px-5 pb-5">
       <Card className="mb-0">
@@ -641,8 +641,8 @@ export default async function CalendarPage() {
 
       <CalendarClient items={items} scripts={scripts} />
 
-      <details className="mt-8 rounded-2xl border border-red-400/20 bg-card/40">
-        <summary className="cursor-pointer select-none px-5 py-4 font-heading text-lg text-red-400/80">
+      <details className="mt-8 rounded-[28px] border border-red-400/20 bg-card/40">
+        <summary className="cursor-pointer select-none px-5 py-4 font-heading text-lg text-red-700/80">
           Danger zone: reset calendar
         </summary>
         <div className="px-5 pb-5">
