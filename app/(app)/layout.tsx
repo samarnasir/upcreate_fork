@@ -1,0 +1,36 @@
+import type { Metadata } from "next";
+import { Instrument_Serif, Plus_Jakarta_Sans } from "next/font/google";
+import "../globals.css";
+import Nav from "@/app/components/Nav";
+import Tutorial from "@/app/components/Tutorial";
+
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
+  subsets: ["latin"],
+  weight: ["400"],
+});
+
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "Upcreate",
+  description: "The Instagram/short-form content operating system: calendar, hooks, scripts, research, and prompts, all in one place.",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html
+      lang="en"
+      className={`${instrumentSerif.variable} ${jakarta.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col md:flex-row bg-background text-foreground">
+        <Nav />
+        <main className="flex-1 min-w-0 px-4 py-6 md:px-10 md:py-10">{children}</main>
+        <Tutorial />
+      </body>
+    </html>
+  );
+}

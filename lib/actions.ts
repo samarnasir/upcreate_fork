@@ -1,0 +1,1964 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { sql, ensureSchema } from "./db";
+import { updateBrand, BrandConfig } from "./brand";
+import { requireUserId } from "./auth";
+import { BASE_DATE, BATCH_TAG, OCT_2026_BATCH, OCT_2026_BATCH_EXT } from "./seed-data/octBatch";
+import { GROWTH_START_WEEK, GROWTH_BATCH_TAG, GROWTH_BATCH } from "./seed-data/growthBatch";
+import { COMMENTARY_START_WEEK, COMMENTARY_BATCH_TAG, COMMENTARY_BATCH } from "./seed-data/commentaryBatch";
+import { SEGMENTS_START_WEEK, SEGMENTS_BATCH_TAG, SEGMENTS_BATCH } from "./seed-data/segmentsBatch";
+import { NEW_CATEGORIES_START_WEEK, NEW_CATEGORIES_BATCH_TAG, NEW_CATEGORIES_BATCH } from "./seed-data/newCategoriesBatch";
+import { NEW_CATEGORIES_2_START_WEEK, NEW_CATEGORIES_2_BATCH_TAG, NEW_CATEGORIES_2_BATCH } from "./seed-data/newCategoriesBatch2";
+import { NEW_CATEGORIES_3_START_WEEK, NEW_CATEGORIES_3_BATCH_TAG, NEW_CATEGORIES_3_BATCH } from "./seed-data/newCategoriesBatch3";
+import { NEW_CATEGORIES_4_START_WEEK, NEW_CATEGORIES_4_BATCH_TAG, NEW_CATEGORIES_4_BATCH } from "./seed-data/newCategoriesBatch4";
+import { NEW_CATEGORIES_5_START_WEEK, NEW_CATEGORIES_5_BATCH_TAG, NEW_CATEGORIES_5_BATCH } from "./seed-data/newCategoriesBatch5";
+import { NEW_CATEGORIES_6_START_WEEK, NEW_CATEGORIES_6_BATCH_TAG, NEW_CATEGORIES_6_BATCH } from "./seed-data/newCategoriesBatch6";
+import { JOURNEY_START_WEEK, JOURNEY_BATCH_TAG, JOURNEY_BATCH } from "./seed-data/journeyBatch";
+import { CATEGORIES_7_START_WEEK, CATEGORIES_7_BATCH_TAG, CATEGORIES_7_BATCH } from "./seed-data/categoriesBatch7";
+import { CATEGORIES_8_START_WEEK, CATEGORIES_8_BATCH_TAG, CATEGORIES_8_BATCH } from "./seed-data/categoriesBatch8";
+import { CATEGORIES_9_START_WEEK, CATEGORIES_9_BATCH_TAG, CATEGORIES_9_BATCH } from "./seed-data/categoriesBatch9";
+
+function val(fd: FormData, key: string, fallback = "") {
+  const v = fd.get(key);
+  return v === null || v === "" ? fallback : String(v);
+}
+function num(fd: FormData, key: string, fallback = 0) {
+  const v = fd.get(key);
+  const n = Number(v);
+  return v === null || Number.isNaN(n) ? fallback : n;
+}
+function id(fd: FormData) {
+  return num(fd, "id");
+}
+
+// ---------- Brand ----------
+export async function saveBrandAction(partial: Partial<BrandConfig>) {
+  const userId = await requireUserId();
+  await updateBrand(userId, partial);
+  revalidatePath("/brand");
+  revalidatePath("/dashboard");
+}
+
+// ---------- Calendar ----------
+export async function createCalendarItem(fd: FormData) {
+  await ensureSchema();
+  const userId = await requireUserId();
+  await sql`
+    INSERT INTO calendar_items (date, pillar, concept_bucket, content_type, topic, angle, format, cta_type, funnel_stage, status, notes, user_id)
+    VALUES (${val(fd, "date")}, ${val(fd, "pillar", "authority")}, ${val(fd, "concept_bucket", "proven")}, ${val(fd, "content_type", "educational")}, ${val(fd, "topic")}, ${val(fd, "angle")}, ${val(fd, "format")}, ${val(fd, "cta_type", "follow")}, ${val(fd, "funnel_stage", "tofu")}, ${val(fd, "status", "idea")}, ${val(fd, "notes")}, ${userId})
+  `;
+  revalidatePath("/calendar");
+  revalidatePath("/dashboard");
+  revalidatePath("/funnel");
+}
+
+export async function updateCalendarItemStatus(fd: FormData) {
+  await ensureSchema();
+  const userId = await requireUserId();
+  await sql`UPDATE calendar_items SET status = ${val(fd, "status", "idea")} WHERE id = ${id(fd)} AND user_id = ${userId}`;
+  revalidatePath("/calendar");
+  revalidatePath("/dashboard");
+  revalidatePath("/funnel");
+}
+
+export async function deleteCalendarItem(fd: FormData) {
+  await ensureSchema();
+  const userId = await requireUserId();
+  await sql`DELETE FROM calendar_items WHERE id = ${id(fd)} AND user_id = ${userId}`;
+  revalidatePath("/calendar");
+  revalidatePath("/dashboard");
+  revalidatePath("/funnel");
+}
+
+// Schedules an existing script onto a calendar date, used by both the
+// Calendar page's day picker and the Script Library's "Add to calendar"
+// button. Denormalizes the script's fields onto the calendar_items row (as
+// every other batch import does) while keeping a real script_id link back,
+// so the calendar entry stays accurate even as the script list grows.
+export async function scheduleScriptToCalendar(fd: FormData) {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const scriptId = num(fd, "script_id");
+  const date = val(fd, "date");
+  if (!scriptId || !date) return;
+
+  const rows = await sql<
+    {
+      title: string;
+      pillar: string;
+      content_type: string;
+      angle_or_story_type: string;
+      format: string;
+      cta_type: string;
+      funnel_stage: string;
+      effort: string;
+      topic_tag: string;
+      segment: string;
+    }[]
+  >`SELECT title, pillar, content_type, angle_or_story_type, format, cta_type, funnel_stage, effort, topic_tag, segment FROM scripts WHERE id = ${scriptId} AND user_id = ${userId}`;
+  const script = rows[0];
+  if (!script) return;
+
+  await sql`
+    INSERT INTO calendar_items (
+      date, pillar, concept_bucket, content_type, topic, angle, format, cta_type, funnel_stage,
+      status, notes, effort, topic_tag, segment, script_id, user_id
+    ) VALUES (
+      ${date}, ${script.pillar}, 'proven', ${script.content_type}, ${script.title}, ${script.angle_or_story_type},
+      ${script.format}, ${script.cta_type}, ${script.funnel_stage}, 'scheduled', '', ${script.effort},
+      ${script.topic_tag}, ${script.segment}, ${scriptId}, ${userId}
+    )
+  `;
+  revalidatePath("/calendar");
+  revalidatePath("/dashboard");
+  revalidatePath("/funnel");
+  revalidatePath("/library");
+}
+
+// Clears every scheduled date while leaving all scripts in the Script
+// Library untouched -- lets the calendar restart clean without losing any
+// written content.
+export async function resetCalendarAction() {
+  await ensureSchema();
+  const userId = await requireUserId();
+  await sql`DELETE FROM calendar_items WHERE user_id = ${userId}`;
+  revalidatePath("/calendar");
+  revalidatePath("/dashboard");
+  revalidatePath("/funnel");
+}
+
+// ---------- Outlier research ----------
+export async function createOutlier(fd: FormData) {
+  await ensureSchema();
+  const userId = await requireUserId();
+  await sql`
+    INSERT INTO outlier_research (source_type, creator_handle, link, niche_keyword, follower_count, views, hook_written, hook_verbal, hook_visual, angle, notes, user_id)
+    VALUES (${val(fd, "source_type", "keyword")}, ${val(fd, "creator_handle")}, ${val(fd, "link")}, ${val(fd, "niche_keyword")}, ${num(fd, "follower_count")}, ${num(fd, "views")}, ${val(fd, "hook_written")}, ${val(fd, "hook_verbal")}, ${val(fd, "hook_visual")}, ${val(fd, "angle")}, ${val(fd, "notes")}, ${userId})
+  `;
+  revalidatePath("/research");
+}
+
+export async function toggleOutlierUsed(fd: FormData) {
+  await ensureSchema();
+  const userId = await requireUserId();
+  await sql`UPDATE outlier_research SET used = NOT used WHERE id = ${id(fd)} AND user_id = ${userId}`;
+  revalidatePath("/research");
+}
+
+export async function deleteOutlier(fd: FormData) {
+  await ensureSchema();
+  const userId = await requireUserId();
+  await sql`DELETE FROM outlier_research WHERE id = ${id(fd)} AND user_id = ${userId}`;
+  revalidatePath("/research");
+}
+
+export type BulkOutlierRow = {
+  source_type: string;
+  creator_handle: string;
+  link: string;
+  niche_keyword: string;
+  follower_count: number;
+  views: number;
+  hook_written: string;
+  hook_verbal: string;
+  hook_visual: string;
+  angle: string;
+  notes: string;
+};
+
+export async function createOutliersBulk(rows: BulkOutlierRow[]) {
+  if (rows.length === 0) return;
+  await ensureSchema();
+  const userId = await requireUserId();
+  const rowsWithUser = rows.map((r) => ({ ...r, user_id: userId }));
+  await sql`
+    INSERT INTO outlier_research ${sql(
+      rowsWithUser,
+      "source_type",
+      "creator_handle",
+      "link",
+      "niche_keyword",
+      "follower_count",
+      "views",
+      "hook_written",
+      "hook_verbal",
+      "hook_visual",
+      "angle",
+      "notes",
+      "user_id"
+    )}
+  `;
+  revalidatePath("/research");
+}
+
+// ---------- Hook stacks ----------
+export async function createHookStack(fd: FormData) {
+  await ensureSchema();
+  const userId = await requireUserId();
+  await sql`
+    INSERT INTO hook_stacks (written, verbal, visual, angle, topic, user_id)
+    VALUES (${val(fd, "written")}, ${val(fd, "verbal")}, ${val(fd, "visual")}, ${val(fd, "angle")}, ${val(fd, "topic")}, ${userId})
+  `;
+  revalidatePath("/hooks");
+}
+
+export async function deleteHookStack(fd: FormData) {
+  await ensureSchema();
+  const userId = await requireUserId();
+  await sql`DELETE FROM hook_stacks WHERE id = ${id(fd)} AND user_id = ${userId}`;
+  revalidatePath("/hooks");
+}
+
+// ---------- Scripts ----------
+export async function createScript(fd: FormData) {
+  await ensureSchema();
+  const userId = await requireUserId();
+  await sql`
+    INSERT INTO scripts (title, pillar, content_type, angle_or_story_type, format, body_black, body_red, body_green, cta_type, funnel_stage, status, series_name, user_id)
+    VALUES (${val(fd, "title", "Untitled script")}, ${val(fd, "pillar", "authority")}, ${val(fd, "content_type", "educational")}, ${val(fd, "angle_or_story_type")}, ${val(fd, "format")}, ${val(fd, "body_black")}, ${val(fd, "body_red")}, ${val(fd, "body_green")}, ${val(fd, "cta_type", "follow")}, ${val(fd, "funnel_stage", "tofu")}, ${val(fd, "status", "draft")}, ${val(fd, "series_name")}, ${userId})
+  `;
+  revalidatePath("/scripts");
+  revalidatePath("/production");
+}
+
+export async function deleteScript(fd: FormData) {
+  await ensureSchema();
+  const userId = await requireUserId();
+  await sql`DELETE FROM scripts WHERE id = ${id(fd)} AND user_id = ${userId}`;
+  revalidatePath("/scripts");
+  revalidatePath("/production");
+}
+
+export async function createScriptTemplate(fd: FormData) {
+  await ensureSchema();
+  const userId = await requireUserId();
+  await sql`
+    INSERT INTO script_templates (name, pillar, angle, source_note, template_text, user_id)
+    VALUES (${val(fd, "name", "Untitled template")}, ${val(fd, "pillar", "authority")}, ${val(fd, "angle")}, ${val(fd, "source_note")}, ${val(fd, "template_text")}, ${userId})
+  `;
+  revalidatePath("/scripts");
+}
+
+export async function deleteScriptTemplate(fd: FormData) {
+  await ensureSchema();
+  const userId = await requireUserId();
+  await sql`DELETE FROM script_templates WHERE id = ${id(fd)} AND user_id = ${userId}`;
+  revalidatePath("/scripts");
+}
+
+// ---------- Own posts / analytics ----------
+export async function createOwnPost(fd: FormData) {
+  await ensureSchema();
+  const userId = await requireUserId();
+  await sql`
+    INSERT INTO own_posts (title, posted_date, views, followers_at_post, pillar, notes, user_id)
+    VALUES (${val(fd, "title")}, ${val(fd, "posted_date")}, ${num(fd, "views")}, ${num(fd, "followers_at_post")}, ${val(fd, "pillar", "authority")}, ${val(fd, "notes")}, ${userId})
+  `;
+  revalidatePath("/analytics");
+  revalidatePath("/dashboard");
+}
+
+export async function deleteOwnPost(fd: FormData) {
+  await ensureSchema();
+  const userId = await requireUserId();
+  await sql`DELETE FROM own_posts WHERE id = ${id(fd)} AND user_id = ${userId}`;
+  revalidatePath("/analytics");
+  revalidatePath("/dashboard");
+}
+
+// ---------- Oct 2026 content batch (30 scripts, weekly, from BASE_DATE) ----------
+function addDays(dateStr: string, days: number) {
+  const d = new Date(`${dateStr}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+export async function isOctoberBatchSeeded(): Promise<boolean> {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const rows = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${BATCH_TAG} AND user_id = ${userId}`;
+  return rows.length > 0;
+}
+
+export async function seedOctoberBatch() {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const already = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${BATCH_TAG} AND user_id = ${userId}`;
+  if (already.length > 0) {
+    revalidatePath("/calendar");
+    return { alreadySeeded: true as const, count: 0 };
+  }
+
+  const fullBatch = [...OCT_2026_BATCH, ...OCT_2026_BATCH_EXT];
+
+  const calendarRows = fullBatch.map((s) => ({
+    date: addDays(BASE_DATE, s.weekOffset * 7),
+    pillar: s.pillar,
+    concept_bucket: s.conceptBucket,
+    content_type: s.contentType,
+    topic: s.title,
+    angle: s.angle,
+    format: s.format,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "scripted",
+    notes: `Oct 2026 batch -- effort: ${s.effort}${s.seriesName ? ` -- series: ${s.seriesName}` : ""}. Full script in Script Studio.`,
+    effort: s.effort,
+    topic_tag: "Market Entry & Business Consulting",
+    segment: "",
+    user_id: userId,
+  }));
+
+  const scriptRows = fullBatch.map((s) => ({
+    title: s.title,
+    pillar: s.pillar,
+    content_type: s.contentType,
+    angle_or_story_type: s.angle,
+    format: s.format,
+    body_black: s.bodyBlack,
+    body_red: s.bodyRed,
+    body_green: s.bodyGreen,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "draft",
+    series_name: s.seriesName ?? "",
+    effort: s.effort,
+    topic_tag: "Market Entry & Business Consulting",
+    segment: "",
+    user_id: userId,
+  }));
+
+  await sql`
+    INSERT INTO calendar_items ${sql(
+      calendarRows,
+      "date",
+      "pillar",
+      "concept_bucket",
+      "content_type",
+      "topic",
+      "angle",
+      "format",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "notes",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO scripts ${sql(
+      scriptRows,
+      "title",
+      "pillar",
+      "content_type",
+      "angle_or_story_type",
+      "format",
+      "body_black",
+      "body_red",
+      "body_green",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "series_name",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO brand_config (key, value, user_id) VALUES (${BATCH_TAG}, ${JSON.stringify({ seededAt: new Date().toISOString(), count: fullBatch.length })}, ${userId})
+    ON CONFLICT (COALESCE(user_id, 0), key) DO NOTHING
+  `;
+
+  revalidatePath("/calendar");
+  revalidatePath("/scripts");
+  revalidatePath("/production");
+  revalidatePath("/funnel");
+  revalidatePath("/dashboard");
+
+  return { alreadySeeded: false as const, count: fullBatch.length };
+}
+
+export async function seedOctoberBatchAction() {
+  await seedOctoberBatch();
+}
+
+// ---------- Growth batch (100 scripts, weekly, continuing from GROWTH_START_WEEK) ----------
+export async function isGrowthBatchSeeded(): Promise<boolean> {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const rows = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${GROWTH_BATCH_TAG} AND user_id = ${userId}`;
+  return rows.length > 0;
+}
+
+export async function seedGrowthBatch() {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const already = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${GROWTH_BATCH_TAG} AND user_id = ${userId}`;
+  if (already.length > 0) {
+    revalidatePath("/calendar");
+    return { alreadySeeded: true as const, count: 0 };
+  }
+
+  const calendarRows = GROWTH_BATCH.map((s) => ({
+    date: addDays(BASE_DATE, (GROWTH_START_WEEK + s.weekOffset) * 7),
+    pillar: s.pillar,
+    concept_bucket: s.conceptBucket,
+    content_type: s.contentType,
+    topic: s.title,
+    angle: s.angle,
+    format: s.format,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "scripted",
+    notes: `Growth batch -- sub-niche: ${s.subniche} -- effort: ${s.effort}${s.seriesName ? ` -- series: ${s.seriesName}` : ""}. Full script in Script Studio.`,
+    effort: s.effort,
+    topic_tag: s.subniche,
+    segment: "",
+    user_id: userId,
+  }));
+
+  const scriptRows = GROWTH_BATCH.map((s) => ({
+    title: s.title,
+    pillar: s.pillar,
+    content_type: s.contentType,
+    angle_or_story_type: s.angle,
+    format: s.format,
+    body_black: s.bodyBlack,
+    body_red: s.bodyRed,
+    body_green: s.bodyGreen,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "draft",
+    series_name: s.seriesName ?? "",
+    effort: s.effort,
+    topic_tag: s.subniche,
+    segment: "",
+    user_id: userId,
+  }));
+
+  await sql`
+    INSERT INTO calendar_items ${sql(
+      calendarRows,
+      "date",
+      "pillar",
+      "concept_bucket",
+      "content_type",
+      "topic",
+      "angle",
+      "format",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "notes",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO scripts ${sql(
+      scriptRows,
+      "title",
+      "pillar",
+      "content_type",
+      "angle_or_story_type",
+      "format",
+      "body_black",
+      "body_red",
+      "body_green",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "series_name",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO brand_config (key, value, user_id) VALUES (${GROWTH_BATCH_TAG}, ${JSON.stringify({ seededAt: new Date().toISOString(), count: GROWTH_BATCH.length })}, ${userId})
+    ON CONFLICT (COALESCE(user_id, 0), key) DO NOTHING
+  `;
+
+  revalidatePath("/calendar");
+  revalidatePath("/scripts");
+  revalidatePath("/production");
+  revalidatePath("/funnel");
+  revalidatePath("/dashboard");
+
+  return { alreadySeeded: false as const, count: GROWTH_BATCH.length };
+}
+
+export async function seedGrowthBatchAction() {
+  await seedGrowthBatch();
+}
+
+// ---------- Commentary batch (50 scripts, weekly, continuing from COMMENTARY_START_WEEK) ----------
+export async function isCommentaryBatchSeeded(): Promise<boolean> {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const rows = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${COMMENTARY_BATCH_TAG} AND user_id = ${userId}`;
+  return rows.length > 0;
+}
+
+export async function seedCommentaryBatch() {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const already = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${COMMENTARY_BATCH_TAG} AND user_id = ${userId}`;
+  if (already.length > 0) {
+    revalidatePath("/calendar");
+    return { alreadySeeded: true as const, count: 0 };
+  }
+
+  const calendarRows = COMMENTARY_BATCH.map((s) => ({
+    date: addDays(BASE_DATE, (COMMENTARY_START_WEEK + s.weekOffset) * 7),
+    pillar: s.pillar,
+    concept_bucket: s.conceptBucket,
+    content_type: s.contentType,
+    topic: s.title,
+    angle: s.angle,
+    format: s.format,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "scripted",
+    notes: `Commentary batch -- source: ${s.sourceType} (${s.sourceRef}) -- effort: ${s.effort}. Full script in Script Studio.`,
+    effort: s.effort,
+    topic_tag: "",
+    segment: s.sourceType,
+    user_id: userId,
+  }));
+
+  const scriptRows = COMMENTARY_BATCH.map((s) => ({
+    title: s.title,
+    pillar: s.pillar,
+    content_type: s.contentType,
+    angle_or_story_type: s.angle,
+    format: s.format,
+    body_black: s.bodyBlack,
+    body_red: s.bodyRed,
+    body_green: s.bodyGreen,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "draft",
+    series_name: s.seriesName ?? "",
+    effort: s.effort,
+    topic_tag: "",
+    segment: s.sourceType,
+    user_id: userId,
+  }));
+
+  await sql`
+    INSERT INTO calendar_items ${sql(
+      calendarRows,
+      "date",
+      "pillar",
+      "concept_bucket",
+      "content_type",
+      "topic",
+      "angle",
+      "format",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "notes",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO scripts ${sql(
+      scriptRows,
+      "title",
+      "pillar",
+      "content_type",
+      "angle_or_story_type",
+      "format",
+      "body_black",
+      "body_red",
+      "body_green",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "series_name",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO brand_config (key, value, user_id) VALUES (${COMMENTARY_BATCH_TAG}, ${JSON.stringify({ seededAt: new Date().toISOString(), count: COMMENTARY_BATCH.length })}, ${userId})
+    ON CONFLICT (COALESCE(user_id, 0), key) DO NOTHING
+  `;
+
+  revalidatePath("/calendar");
+  revalidatePath("/scripts");
+  revalidatePath("/production");
+  revalidatePath("/funnel");
+  revalidatePath("/dashboard");
+
+  return { alreadySeeded: false as const, count: COMMENTARY_BATCH.length };
+}
+
+export async function seedCommentaryBatchAction() {
+  await seedCommentaryBatch();
+}
+
+// ---------- Segments batch (200 scripts, weekly, continuing from SEGMENTS_START_WEEK) ----------
+export async function isSegmentsBatchSeeded(): Promise<boolean> {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const rows = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${SEGMENTS_BATCH_TAG} AND user_id = ${userId}`;
+  return rows.length > 0;
+}
+
+export async function seedSegmentsBatch() {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const already = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${SEGMENTS_BATCH_TAG} AND user_id = ${userId}`;
+  if (already.length > 0) {
+    revalidatePath("/calendar");
+    return { alreadySeeded: true as const, count: 0 };
+  }
+
+  const calendarRows = SEGMENTS_BATCH.map((s) => ({
+    date: addDays(BASE_DATE, (SEGMENTS_START_WEEK + s.weekOffset) * 7),
+    pillar: s.pillar,
+    concept_bucket: s.conceptBucket,
+    content_type: s.contentType,
+    topic: s.title,
+    angle: s.angle,
+    format: s.format,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "scripted",
+    notes: `Segments batch -- segment: ${s.segment} -- topic: ${s.topicTag} -- effort: ${s.effort}. Full script in Script Studio.`,
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: s.segment,
+    user_id: userId,
+  }));
+
+  const scriptRows = SEGMENTS_BATCH.map((s) => ({
+    title: s.title,
+    pillar: s.pillar,
+    content_type: s.contentType,
+    angle_or_story_type: s.angle,
+    format: s.format,
+    body_black: s.bodyBlack,
+    body_red: s.bodyRed,
+    body_green: s.bodyGreen,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "draft",
+    series_name: s.seriesName ?? "",
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: s.segment,
+    user_id: userId,
+  }));
+
+  await sql`
+    INSERT INTO calendar_items ${sql(
+      calendarRows,
+      "date",
+      "pillar",
+      "concept_bucket",
+      "content_type",
+      "topic",
+      "angle",
+      "format",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "notes",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO scripts ${sql(
+      scriptRows,
+      "title",
+      "pillar",
+      "content_type",
+      "angle_or_story_type",
+      "format",
+      "body_black",
+      "body_red",
+      "body_green",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "series_name",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO brand_config (key, value, user_id) VALUES (${SEGMENTS_BATCH_TAG}, ${JSON.stringify({ seededAt: new Date().toISOString(), count: SEGMENTS_BATCH.length })}, ${userId})
+    ON CONFLICT (COALESCE(user_id, 0), key) DO NOTHING
+  `;
+
+  revalidatePath("/calendar");
+  revalidatePath("/scripts");
+  revalidatePath("/production");
+  revalidatePath("/funnel");
+  revalidatePath("/dashboard");
+
+  return { alreadySeeded: false as const, count: SEGMENTS_BATCH.length };
+}
+
+export async function seedSegmentsBatchAction() {
+  await seedSegmentsBatch();
+}
+
+// ---------- Backfill effort/topic_tag/segment on already-imported batches ----------
+// The effort/topic_tag/segment columns were added after the first 3 batches (oct,
+// growth, commentary) were already live in production. This bulk-updates
+// already-seeded rows by matching on title (unique across all batches), so
+// existing imports pick up the same labels new imports get, without having
+// to delete and re-seed them.
+const BACKFILL_TAG = "batch_metadata_backfill_v1";
+
+export async function isBackfillDone(): Promise<boolean> {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const rows = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${BACKFILL_TAG} AND user_id = ${userId}`;
+  return rows.length > 0;
+}
+
+export async function backfillScriptMetadataAction() {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const already = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${BACKFILL_TAG} AND user_id = ${userId}`;
+  if (already.length > 0) {
+    revalidatePath("/calendar");
+    revalidatePath("/scripts");
+    return;
+  }
+
+  const rows: { title: string; effort: string; topic_tag: string; segment: string }[] = [
+    ...[...OCT_2026_BATCH, ...OCT_2026_BATCH_EXT].map((s) => ({
+      title: s.title,
+      effort: s.effort,
+      topic_tag: "Market Entry & Business Consulting",
+      segment: "",
+    })),
+    ...GROWTH_BATCH.map((s) => ({ title: s.title, effort: s.effort, topic_tag: s.subniche, segment: "" })),
+    ...COMMENTARY_BATCH.map((s) => ({ title: s.title, effort: s.effort, topic_tag: "", segment: s.sourceType })),
+    ...SEGMENTS_BATCH.map((s) => ({ title: s.title, effort: s.effort, topic_tag: s.topicTag, segment: s.segment })),
+    ...NEW_CATEGORIES_BATCH.map((s) => ({ title: s.title, effort: s.effort, topic_tag: s.topicTag, segment: "" })),
+    ...NEW_CATEGORIES_2_BATCH.map((s) => ({ title: s.title, effort: s.effort, topic_tag: s.topicTag, segment: "" })),
+    ...NEW_CATEGORIES_3_BATCH.map((s) => ({ title: s.title, effort: s.effort, topic_tag: s.topicTag, segment: "" })),
+    ...NEW_CATEGORIES_4_BATCH.map((s) => ({ title: s.title, effort: s.effort, topic_tag: s.topicTag, segment: "" })),
+    ...NEW_CATEGORIES_5_BATCH.map((s) => ({ title: s.title, effort: s.effort, topic_tag: s.topicTag, segment: "" })),
+    ...NEW_CATEGORIES_6_BATCH.map((s) => ({ title: s.title, effort: s.effort, topic_tag: s.topicTag, segment: "" })),
+    ...JOURNEY_BATCH.map((s) => ({ title: s.title, effort: s.effort, topic_tag: s.topicTag, segment: "" })),
+    ...CATEGORIES_7_BATCH.map((s) => ({ title: s.title, effort: s.effort, topic_tag: s.topicTag, segment: "" })),
+    ...CATEGORIES_8_BATCH.map((s) => ({ title: s.title, effort: s.effort, topic_tag: s.topicTag, segment: "" })),
+    ...CATEGORIES_9_BATCH.map((s) => ({ title: s.title, effort: s.effort, topic_tag: s.topicTag, segment: "" })),
+  ];
+
+  if (rows.length > 0) {
+    await sql`
+      UPDATE scripts s SET effort = v.effort, topic_tag = v.topic_tag, segment = v.segment
+      FROM (VALUES ${sql(rows.map((r) => [r.title, r.effort, r.topic_tag, r.segment]))}) AS v(title, effort, topic_tag, segment)
+      WHERE s.title = v.title AND s.user_id = ${userId}
+    `;
+    await sql`
+      UPDATE calendar_items c SET effort = v.effort, topic_tag = v.topic_tag, segment = v.segment
+      FROM (VALUES ${sql(rows.map((r) => [r.title, r.effort, r.topic_tag, r.segment]))}) AS v(title, effort, topic_tag, segment)
+      WHERE c.topic = v.title AND c.user_id = ${userId}
+    `;
+  }
+
+  await sql`
+    INSERT INTO brand_config (key, value, user_id) VALUES (${BACKFILL_TAG}, ${JSON.stringify({ backfilledAt: new Date().toISOString(), count: rows.length })}, ${userId})
+    ON CONFLICT (COALESCE(user_id, 0), key) DO NOTHING
+  `;
+
+  revalidatePath("/calendar");
+  revalidatePath("/scripts");
+  revalidatePath("/production");
+}
+
+// ---------- New categories batch (28 scripts, weekly, continuing from NEW_CATEGORIES_START_WEEK) ----------
+// Phase 1 of the requested content-coverage expansion: 7 new sub-categories,
+// 4 scripts each. Deliberately small and self-contained -- more phases can
+// follow the same pattern (own data file, own tag, own button) without
+// touching this one.
+export async function isNewCategoriesBatchSeeded(): Promise<boolean> {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const rows = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${NEW_CATEGORIES_BATCH_TAG} AND user_id = ${userId}`;
+  return rows.length > 0;
+}
+
+export async function seedNewCategoriesBatch() {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const already = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${NEW_CATEGORIES_BATCH_TAG} AND user_id = ${userId}`;
+  if (already.length > 0) {
+    revalidatePath("/calendar");
+    return { alreadySeeded: true as const, count: 0 };
+  }
+
+  const calendarRows = NEW_CATEGORIES_BATCH.map((s) => ({
+    date: addDays(BASE_DATE, (NEW_CATEGORIES_START_WEEK + s.weekOffset) * 7),
+    pillar: s.pillar,
+    concept_bucket: s.conceptBucket,
+    content_type: s.contentType,
+    topic: s.title,
+    angle: s.angle,
+    format: s.format,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "scripted",
+    notes: `New categories batch (Phase 1) -- topic: ${s.topicTag} -- effort: ${s.effort}. Full script in Script Studio.`,
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  const scriptRows = NEW_CATEGORIES_BATCH.map((s) => ({
+    title: s.title,
+    pillar: s.pillar,
+    content_type: s.contentType,
+    angle_or_story_type: s.angle,
+    format: s.format,
+    body_black: s.bodyBlack,
+    body_red: s.bodyRed,
+    body_green: s.bodyGreen,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "draft",
+    series_name: s.seriesName ?? "",
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  await sql`
+    INSERT INTO calendar_items ${sql(
+      calendarRows,
+      "date",
+      "pillar",
+      "concept_bucket",
+      "content_type",
+      "topic",
+      "angle",
+      "format",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "notes",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO scripts ${sql(
+      scriptRows,
+      "title",
+      "pillar",
+      "content_type",
+      "angle_or_story_type",
+      "format",
+      "body_black",
+      "body_red",
+      "body_green",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "series_name",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO brand_config (key, value, user_id) VALUES (${NEW_CATEGORIES_BATCH_TAG}, ${JSON.stringify({ seededAt: new Date().toISOString(), count: NEW_CATEGORIES_BATCH.length })}, ${userId})
+    ON CONFLICT (COALESCE(user_id, 0), key) DO NOTHING
+  `;
+
+  revalidatePath("/calendar");
+  revalidatePath("/scripts");
+  revalidatePath("/production");
+  revalidatePath("/funnel");
+  revalidatePath("/dashboard");
+
+  return { alreadySeeded: false as const, count: NEW_CATEGORIES_BATCH.length };
+}
+
+export async function seedNewCategoriesBatchAction() {
+  await seedNewCategoriesBatch();
+}
+
+// ---------- New categories batch, Phase 2 (28 scripts, continuing from NEW_CATEGORIES_2_START_WEEK) ----------
+export async function isNewCategories2BatchSeeded(): Promise<boolean> {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const rows = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${NEW_CATEGORIES_2_BATCH_TAG} AND user_id = ${userId}`;
+  return rows.length > 0;
+}
+
+export async function seedNewCategories2Batch() {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const already = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${NEW_CATEGORIES_2_BATCH_TAG} AND user_id = ${userId}`;
+  if (already.length > 0) {
+    revalidatePath("/calendar");
+    return { alreadySeeded: true as const, count: 0 };
+  }
+
+  const calendarRows = NEW_CATEGORIES_2_BATCH.map((s) => ({
+    date: addDays(BASE_DATE, (NEW_CATEGORIES_2_START_WEEK + s.weekOffset) * 7),
+    pillar: s.pillar,
+    concept_bucket: s.conceptBucket,
+    content_type: s.contentType,
+    topic: s.title,
+    angle: s.angle,
+    format: s.format,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "scripted",
+    notes: `New categories batch (Phase 2) -- topic: ${s.topicTag} -- effort: ${s.effort}. Full script in Script Studio.`,
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  const scriptRows = NEW_CATEGORIES_2_BATCH.map((s) => ({
+    title: s.title,
+    pillar: s.pillar,
+    content_type: s.contentType,
+    angle_or_story_type: s.angle,
+    format: s.format,
+    body_black: s.bodyBlack,
+    body_red: s.bodyRed,
+    body_green: s.bodyGreen,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "draft",
+    series_name: s.seriesName ?? "",
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  await sql`
+    INSERT INTO calendar_items ${sql(
+      calendarRows,
+      "date",
+      "pillar",
+      "concept_bucket",
+      "content_type",
+      "topic",
+      "angle",
+      "format",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "notes",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO scripts ${sql(
+      scriptRows,
+      "title",
+      "pillar",
+      "content_type",
+      "angle_or_story_type",
+      "format",
+      "body_black",
+      "body_red",
+      "body_green",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "series_name",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO brand_config (key, value, user_id) VALUES (${NEW_CATEGORIES_2_BATCH_TAG}, ${JSON.stringify({ seededAt: new Date().toISOString(), count: NEW_CATEGORIES_2_BATCH.length })}, ${userId})
+    ON CONFLICT (COALESCE(user_id, 0), key) DO NOTHING
+  `;
+
+  revalidatePath("/calendar");
+  revalidatePath("/scripts");
+  revalidatePath("/production");
+  revalidatePath("/funnel");
+  revalidatePath("/dashboard");
+
+  return { alreadySeeded: false as const, count: NEW_CATEGORIES_2_BATCH.length };
+}
+
+export async function seedNewCategories2BatchAction() {
+  await seedNewCategories2Batch();
+}
+
+// ---------- New categories batch, Phase 3 (28 scripts, continuing from NEW_CATEGORIES_3_START_WEEK) ----------
+export async function isNewCategories3BatchSeeded(): Promise<boolean> {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const rows = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${NEW_CATEGORIES_3_BATCH_TAG} AND user_id = ${userId}`;
+  return rows.length > 0;
+}
+
+export async function seedNewCategories3Batch() {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const already = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${NEW_CATEGORIES_3_BATCH_TAG} AND user_id = ${userId}`;
+  if (already.length > 0) {
+    revalidatePath("/calendar");
+    return { alreadySeeded: true as const, count: 0 };
+  }
+
+  const calendarRows = NEW_CATEGORIES_3_BATCH.map((s) => ({
+    date: addDays(BASE_DATE, (NEW_CATEGORIES_3_START_WEEK + s.weekOffset) * 7),
+    pillar: s.pillar,
+    concept_bucket: s.conceptBucket,
+    content_type: s.contentType,
+    topic: s.title,
+    angle: s.angle,
+    format: s.format,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "scripted",
+    notes: `New categories batch (Phase 3) -- topic: ${s.topicTag} -- effort: ${s.effort}. Full script in Script Studio.`,
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  const scriptRows = NEW_CATEGORIES_3_BATCH.map((s) => ({
+    title: s.title,
+    pillar: s.pillar,
+    content_type: s.contentType,
+    angle_or_story_type: s.angle,
+    format: s.format,
+    body_black: s.bodyBlack,
+    body_red: s.bodyRed,
+    body_green: s.bodyGreen,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "draft",
+    series_name: s.seriesName ?? "",
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  await sql`
+    INSERT INTO calendar_items ${sql(
+      calendarRows,
+      "date",
+      "pillar",
+      "concept_bucket",
+      "content_type",
+      "topic",
+      "angle",
+      "format",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "notes",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO scripts ${sql(
+      scriptRows,
+      "title",
+      "pillar",
+      "content_type",
+      "angle_or_story_type",
+      "format",
+      "body_black",
+      "body_red",
+      "body_green",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "series_name",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO brand_config (key, value, user_id) VALUES (${NEW_CATEGORIES_3_BATCH_TAG}, ${JSON.stringify({ seededAt: new Date().toISOString(), count: NEW_CATEGORIES_3_BATCH.length })}, ${userId})
+    ON CONFLICT (COALESCE(user_id, 0), key) DO NOTHING
+  `;
+
+  revalidatePath("/calendar");
+  revalidatePath("/scripts");
+  revalidatePath("/production");
+  revalidatePath("/funnel");
+  revalidatePath("/dashboard");
+
+  return { alreadySeeded: false as const, count: NEW_CATEGORIES_3_BATCH.length };
+}
+
+export async function seedNewCategories3BatchAction() {
+  await seedNewCategories3Batch();
+}
+
+// ---------- New categories batch, Phase 4 (28 scripts, continuing from NEW_CATEGORIES_4_START_WEEK) ----------
+export async function isNewCategories4BatchSeeded(): Promise<boolean> {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const rows = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${NEW_CATEGORIES_4_BATCH_TAG} AND user_id = ${userId}`;
+  return rows.length > 0;
+}
+
+export async function seedNewCategories4Batch() {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const already = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${NEW_CATEGORIES_4_BATCH_TAG} AND user_id = ${userId}`;
+  if (already.length > 0) {
+    revalidatePath("/calendar");
+    return { alreadySeeded: true as const, count: 0 };
+  }
+
+  const calendarRows = NEW_CATEGORIES_4_BATCH.map((s) => ({
+    date: addDays(BASE_DATE, (NEW_CATEGORIES_4_START_WEEK + s.weekOffset) * 7),
+    pillar: s.pillar,
+    concept_bucket: s.conceptBucket,
+    content_type: s.contentType,
+    topic: s.title,
+    angle: s.angle,
+    format: s.format,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "scripted",
+    notes: `New categories batch (Phase 4) -- topic: ${s.topicTag} -- effort: ${s.effort}. Full script in Script Studio.`,
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  const scriptRows = NEW_CATEGORIES_4_BATCH.map((s) => ({
+    title: s.title,
+    pillar: s.pillar,
+    content_type: s.contentType,
+    angle_or_story_type: s.angle,
+    format: s.format,
+    body_black: s.bodyBlack,
+    body_red: s.bodyRed,
+    body_green: s.bodyGreen,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "draft",
+    series_name: s.seriesName ?? "",
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  await sql`
+    INSERT INTO calendar_items ${sql(
+      calendarRows,
+      "date",
+      "pillar",
+      "concept_bucket",
+      "content_type",
+      "topic",
+      "angle",
+      "format",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "notes",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO scripts ${sql(
+      scriptRows,
+      "title",
+      "pillar",
+      "content_type",
+      "angle_or_story_type",
+      "format",
+      "body_black",
+      "body_red",
+      "body_green",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "series_name",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO brand_config (key, value, user_id) VALUES (${NEW_CATEGORIES_4_BATCH_TAG}, ${JSON.stringify({ seededAt: new Date().toISOString(), count: NEW_CATEGORIES_4_BATCH.length })}, ${userId})
+    ON CONFLICT (COALESCE(user_id, 0), key) DO NOTHING
+  `;
+
+  revalidatePath("/calendar");
+  revalidatePath("/scripts");
+  revalidatePath("/production");
+  revalidatePath("/funnel");
+  revalidatePath("/dashboard");
+
+  return { alreadySeeded: false as const, count: NEW_CATEGORIES_4_BATCH.length };
+}
+
+export async function seedNewCategories4BatchAction() {
+  await seedNewCategories4Batch();
+}
+
+// ---------- New categories batch, Phase 5 (28 scripts, continuing from NEW_CATEGORIES_5_START_WEEK) ----------
+export async function isNewCategories5BatchSeeded(): Promise<boolean> {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const rows = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${NEW_CATEGORIES_5_BATCH_TAG} AND user_id = ${userId}`;
+  return rows.length > 0;
+}
+
+export async function seedNewCategories5Batch() {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const already = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${NEW_CATEGORIES_5_BATCH_TAG} AND user_id = ${userId}`;
+  if (already.length > 0) {
+    revalidatePath("/calendar");
+    return { alreadySeeded: true as const, count: 0 };
+  }
+
+  const calendarRows = NEW_CATEGORIES_5_BATCH.map((s) => ({
+    date: addDays(BASE_DATE, (NEW_CATEGORIES_5_START_WEEK + s.weekOffset) * 7),
+    pillar: s.pillar,
+    concept_bucket: s.conceptBucket,
+    content_type: s.contentType,
+    topic: s.title,
+    angle: s.angle,
+    format: s.format,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "scripted",
+    notes: `New categories batch (Phase 5) -- topic: ${s.topicTag} -- effort: ${s.effort}. Full script in Script Studio.`,
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  const scriptRows = NEW_CATEGORIES_5_BATCH.map((s) => ({
+    title: s.title,
+    pillar: s.pillar,
+    content_type: s.contentType,
+    angle_or_story_type: s.angle,
+    format: s.format,
+    body_black: s.bodyBlack,
+    body_red: s.bodyRed,
+    body_green: s.bodyGreen,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "draft",
+    series_name: s.seriesName ?? "",
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  await sql`
+    INSERT INTO calendar_items ${sql(
+      calendarRows,
+      "date",
+      "pillar",
+      "concept_bucket",
+      "content_type",
+      "topic",
+      "angle",
+      "format",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "notes",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO scripts ${sql(
+      scriptRows,
+      "title",
+      "pillar",
+      "content_type",
+      "angle_or_story_type",
+      "format",
+      "body_black",
+      "body_red",
+      "body_green",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "series_name",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO brand_config (key, value, user_id) VALUES (${NEW_CATEGORIES_5_BATCH_TAG}, ${JSON.stringify({ seededAt: new Date().toISOString(), count: NEW_CATEGORIES_5_BATCH.length })}, ${userId})
+    ON CONFLICT (COALESCE(user_id, 0), key) DO NOTHING
+  `;
+
+  revalidatePath("/calendar");
+  revalidatePath("/scripts");
+  revalidatePath("/production");
+  revalidatePath("/funnel");
+  revalidatePath("/dashboard");
+
+  return { alreadySeeded: false as const, count: NEW_CATEGORIES_5_BATCH.length };
+}
+
+export async function seedNewCategories5BatchAction() {
+  await seedNewCategories5Batch();
+}
+
+// ---------- New categories batch, Phase 6 (28 scripts, continuing from NEW_CATEGORIES_6_START_WEEK) ----------
+export async function isNewCategories6BatchSeeded(): Promise<boolean> {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const rows = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${NEW_CATEGORIES_6_BATCH_TAG} AND user_id = ${userId}`;
+  return rows.length > 0;
+}
+
+export async function seedNewCategories6Batch() {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const already = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${NEW_CATEGORIES_6_BATCH_TAG} AND user_id = ${userId}`;
+  if (already.length > 0) {
+    revalidatePath("/calendar");
+    return { alreadySeeded: true as const, count: 0 };
+  }
+
+  const calendarRows = NEW_CATEGORIES_6_BATCH.map((s) => ({
+    date: addDays(BASE_DATE, (NEW_CATEGORIES_6_START_WEEK + s.weekOffset) * 7),
+    pillar: s.pillar,
+    concept_bucket: s.conceptBucket,
+    content_type: s.contentType,
+    topic: s.title,
+    angle: s.angle,
+    format: s.format,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "scripted",
+    notes: `New categories batch (Phase 6) -- topic: ${s.topicTag} -- effort: ${s.effort}. Full script in Script Studio.`,
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  const scriptRows = NEW_CATEGORIES_6_BATCH.map((s) => ({
+    title: s.title,
+    pillar: s.pillar,
+    content_type: s.contentType,
+    angle_or_story_type: s.angle,
+    format: s.format,
+    body_black: s.bodyBlack,
+    body_red: s.bodyRed,
+    body_green: s.bodyGreen,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "draft",
+    series_name: s.seriesName ?? "",
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  await sql`
+    INSERT INTO calendar_items ${sql(
+      calendarRows,
+      "date",
+      "pillar",
+      "concept_bucket",
+      "content_type",
+      "topic",
+      "angle",
+      "format",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "notes",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO scripts ${sql(
+      scriptRows,
+      "title",
+      "pillar",
+      "content_type",
+      "angle_or_story_type",
+      "format",
+      "body_black",
+      "body_red",
+      "body_green",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "series_name",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO brand_config (key, value, user_id) VALUES (${NEW_CATEGORIES_6_BATCH_TAG}, ${JSON.stringify({ seededAt: new Date().toISOString(), count: NEW_CATEGORIES_6_BATCH.length })}, ${userId})
+    ON CONFLICT (COALESCE(user_id, 0), key) DO NOTHING
+  `;
+
+  revalidatePath("/calendar");
+  revalidatePath("/scripts");
+  revalidatePath("/production");
+  revalidatePath("/funnel");
+  revalidatePath("/dashboard");
+
+  return { alreadySeeded: false as const, count: NEW_CATEGORIES_6_BATCH.length };
+}
+
+export async function seedNewCategories6BatchAction() {
+  await seedNewCategories6Batch();
+}
+
+// ---------- Journey/storytelling gap-fill batch (41 scripts, continuing from JOURNEY_START_WEEK) ----------
+export async function isJourneyBatchSeeded(): Promise<boolean> {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const rows = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${JOURNEY_BATCH_TAG} AND user_id = ${userId}`;
+  return rows.length > 0;
+}
+
+export async function seedJourneyBatch() {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const already = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${JOURNEY_BATCH_TAG} AND user_id = ${userId}`;
+  if (already.length > 0) {
+    revalidatePath("/calendar");
+    return { alreadySeeded: true as const, count: 0 };
+  }
+
+  const calendarRows = JOURNEY_BATCH.map((s) => ({
+    date: addDays(BASE_DATE, (JOURNEY_START_WEEK + s.weekOffset) * 7),
+    pillar: s.pillar,
+    concept_bucket: s.conceptBucket,
+    content_type: s.contentType,
+    topic: s.title,
+    angle: s.angle,
+    format: s.format,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "scripted",
+    notes: `Journey gap-fill batch -- topic: ${s.topicTag} -- effort: ${s.effort}. Full script in Script Studio.`,
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  const scriptRows = JOURNEY_BATCH.map((s) => ({
+    title: s.title,
+    pillar: s.pillar,
+    content_type: s.contentType,
+    angle_or_story_type: s.angle,
+    format: s.format,
+    body_black: s.bodyBlack,
+    body_red: s.bodyRed,
+    body_green: s.bodyGreen,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "draft",
+    series_name: s.seriesName ?? "",
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  await sql`
+    INSERT INTO calendar_items ${sql(
+      calendarRows,
+      "date",
+      "pillar",
+      "concept_bucket",
+      "content_type",
+      "topic",
+      "angle",
+      "format",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "notes",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO scripts ${sql(
+      scriptRows,
+      "title",
+      "pillar",
+      "content_type",
+      "angle_or_story_type",
+      "format",
+      "body_black",
+      "body_red",
+      "body_green",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "series_name",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO brand_config (key, value, user_id) VALUES (${JOURNEY_BATCH_TAG}, ${JSON.stringify({ seededAt: new Date().toISOString(), count: JOURNEY_BATCH.length })}, ${userId})
+    ON CONFLICT (COALESCE(user_id, 0), key) DO NOTHING
+  `;
+
+  revalidatePath("/calendar");
+  revalidatePath("/scripts");
+  revalidatePath("/production");
+  revalidatePath("/funnel");
+  revalidatePath("/library");
+  revalidatePath("/dashboard");
+
+  return { alreadySeeded: false as const, count: JOURNEY_BATCH.length };
+}
+
+export async function seedJourneyBatchAction() {
+  await seedJourneyBatch();
+}
+
+// ---------- Equal-division top-up, Phase 7 (140 scripts, continuing from CATEGORIES_7_START_WEEK) ----------
+export async function isCategories7BatchSeeded(): Promise<boolean> {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const rows = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${CATEGORIES_7_BATCH_TAG} AND user_id = ${userId}`;
+  return rows.length > 0;
+}
+
+export async function seedCategories7Batch() {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const already = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${CATEGORIES_7_BATCH_TAG} AND user_id = ${userId}`;
+  if (already.length > 0) {
+    revalidatePath("/calendar");
+    return { alreadySeeded: true as const, count: 0 };
+  }
+
+  const calendarRows = CATEGORIES_7_BATCH.map((s) => ({
+    date: addDays(BASE_DATE, (CATEGORIES_7_START_WEEK + s.weekOffset) * 7),
+    pillar: s.pillar,
+    concept_bucket: s.conceptBucket,
+    content_type: s.contentType,
+    topic: s.title,
+    angle: s.angle,
+    format: s.format,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "scripted",
+    notes: `Equal-division top-up (Phase 7) -- topic: ${s.topicTag} -- effort: ${s.effort}. Full script in Script Studio.`,
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  const scriptRows = CATEGORIES_7_BATCH.map((s) => ({
+    title: s.title,
+    pillar: s.pillar,
+    content_type: s.contentType,
+    angle_or_story_type: s.angle,
+    format: s.format,
+    body_black: s.bodyBlack,
+    body_red: s.bodyRed,
+    body_green: s.bodyGreen,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "draft",
+    series_name: s.seriesName ?? "",
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  await sql`
+    INSERT INTO calendar_items ${sql(
+      calendarRows,
+      "date",
+      "pillar",
+      "concept_bucket",
+      "content_type",
+      "topic",
+      "angle",
+      "format",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "notes",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO scripts ${sql(
+      scriptRows,
+      "title",
+      "pillar",
+      "content_type",
+      "angle_or_story_type",
+      "format",
+      "body_black",
+      "body_red",
+      "body_green",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "series_name",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO brand_config (key, value, user_id) VALUES (${CATEGORIES_7_BATCH_TAG}, ${JSON.stringify({ seededAt: new Date().toISOString(), count: CATEGORIES_7_BATCH.length })}, ${userId})
+    ON CONFLICT (COALESCE(user_id, 0), key) DO NOTHING
+  `;
+
+  revalidatePath("/calendar");
+  revalidatePath("/scripts");
+  revalidatePath("/production");
+  revalidatePath("/funnel");
+  revalidatePath("/library");
+  revalidatePath("/dashboard");
+
+  return { alreadySeeded: false as const, count: CATEGORIES_7_BATCH.length };
+}
+
+export async function seedCategories7BatchAction() {
+  await seedCategories7Batch();
+}
+
+// ---------- Equal-division top-up, Phase 8 (130 scripts, continuing from CATEGORIES_8_START_WEEK) ----------
+export async function isCategories8BatchSeeded(): Promise<boolean> {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const rows = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${CATEGORIES_8_BATCH_TAG} AND user_id = ${userId}`;
+  return rows.length > 0;
+}
+
+export async function seedCategories8Batch() {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const already = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${CATEGORIES_8_BATCH_TAG} AND user_id = ${userId}`;
+  if (already.length > 0) {
+    revalidatePath("/calendar");
+    return { alreadySeeded: true as const, count: 0 };
+  }
+
+  const calendarRows = CATEGORIES_8_BATCH.map((s) => ({
+    date: addDays(BASE_DATE, (CATEGORIES_8_START_WEEK + s.weekOffset) * 7),
+    pillar: s.pillar,
+    concept_bucket: s.conceptBucket,
+    content_type: s.contentType,
+    topic: s.title,
+    angle: s.angle,
+    format: s.format,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "scripted",
+    notes: `Equal-division top-up (Phase 8) -- topic: ${s.topicTag} -- effort: ${s.effort}. Full script in Script Studio.`,
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  const scriptRows = CATEGORIES_8_BATCH.map((s) => ({
+    title: s.title,
+    pillar: s.pillar,
+    content_type: s.contentType,
+    angle_or_story_type: s.angle,
+    format: s.format,
+    body_black: s.bodyBlack,
+    body_red: s.bodyRed,
+    body_green: s.bodyGreen,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "draft",
+    series_name: s.seriesName ?? "",
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  await sql`
+    INSERT INTO calendar_items ${sql(
+      calendarRows,
+      "date",
+      "pillar",
+      "concept_bucket",
+      "content_type",
+      "topic",
+      "angle",
+      "format",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "notes",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO scripts ${sql(
+      scriptRows,
+      "title",
+      "pillar",
+      "content_type",
+      "angle_or_story_type",
+      "format",
+      "body_black",
+      "body_red",
+      "body_green",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "series_name",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO brand_config (key, value, user_id) VALUES (${CATEGORIES_8_BATCH_TAG}, ${JSON.stringify({ seededAt: new Date().toISOString(), count: CATEGORIES_8_BATCH.length })}, ${userId})
+    ON CONFLICT (COALESCE(user_id, 0), key) DO NOTHING
+  `;
+
+  revalidatePath("/calendar");
+  revalidatePath("/scripts");
+  revalidatePath("/production");
+  revalidatePath("/funnel");
+  revalidatePath("/library");
+  revalidatePath("/dashboard");
+
+  return { alreadySeeded: false as const, count: CATEGORIES_8_BATCH.length };
+}
+
+export async function seedCategories8BatchAction() {
+  await seedCategories8Batch();
+}
+
+// ---------- Equal-division top-up, Phase 9, final phase (126 scripts, continuing from CATEGORIES_9_START_WEEK) ----------
+export async function isCategories9BatchSeeded(): Promise<boolean> {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const rows = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${CATEGORIES_9_BATCH_TAG} AND user_id = ${userId}`;
+  return rows.length > 0;
+}
+
+export async function seedCategories9Batch() {
+  await ensureSchema();
+  const userId = await requireUserId();
+  const already = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = ${CATEGORIES_9_BATCH_TAG} AND user_id = ${userId}`;
+  if (already.length > 0) {
+    revalidatePath("/calendar");
+    return { alreadySeeded: true as const, count: 0 };
+  }
+
+  const calendarRows = CATEGORIES_9_BATCH.map((s) => ({
+    date: addDays(BASE_DATE, (CATEGORIES_9_START_WEEK + s.weekOffset) * 7),
+    pillar: s.pillar,
+    concept_bucket: s.conceptBucket,
+    content_type: s.contentType,
+    topic: s.title,
+    angle: s.angle,
+    format: s.format,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "scripted",
+    notes: `Equal-division top-up (Phase 9, final) -- topic: ${s.topicTag} -- effort: ${s.effort}. Full script in Script Studio.`,
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  const scriptRows = CATEGORIES_9_BATCH.map((s) => ({
+    title: s.title,
+    pillar: s.pillar,
+    content_type: s.contentType,
+    angle_or_story_type: s.angle,
+    format: s.format,
+    body_black: s.bodyBlack,
+    body_red: s.bodyRed,
+    body_green: s.bodyGreen,
+    cta_type: s.ctaType,
+    funnel_stage: s.funnelStage,
+    status: "draft",
+    series_name: s.seriesName ?? "",
+    effort: s.effort,
+    topic_tag: s.topicTag,
+    segment: "",
+    user_id: userId,
+  }));
+
+  await sql`
+    INSERT INTO calendar_items ${sql(
+      calendarRows,
+      "date",
+      "pillar",
+      "concept_bucket",
+      "content_type",
+      "topic",
+      "angle",
+      "format",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "notes",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO scripts ${sql(
+      scriptRows,
+      "title",
+      "pillar",
+      "content_type",
+      "angle_or_story_type",
+      "format",
+      "body_black",
+      "body_red",
+      "body_green",
+      "cta_type",
+      "funnel_stage",
+      "status",
+      "series_name",
+      "effort",
+      "topic_tag",
+      "segment",
+      "user_id"
+    )}
+  `;
+
+  await sql`
+    INSERT INTO brand_config (key, value, user_id) VALUES (${CATEGORIES_9_BATCH_TAG}, ${JSON.stringify({ seededAt: new Date().toISOString(), count: CATEGORIES_9_BATCH.length })}, ${userId})
+    ON CONFLICT (COALESCE(user_id, 0), key) DO NOTHING
+  `;
+
+  revalidatePath("/calendar");
+  revalidatePath("/scripts");
+  revalidatePath("/production");
+  revalidatePath("/funnel");
+  revalidatePath("/library");
+  revalidatePath("/dashboard");
+
+  return { alreadySeeded: false as const, count: CATEGORIES_9_BATCH.length };
+}
+
+export async function seedCategories9BatchAction() {
+  await seedCategories9Batch();
+}
