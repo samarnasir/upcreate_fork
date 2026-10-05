@@ -1,7 +1,5 @@
 import crypto from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 
 export const SESSION_COOKIE = "upcreate_session";
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
@@ -77,17 +75,11 @@ export function verifyPassword(password: string, stored: string): boolean {
 
 // Returns the signed-in user's id, or null if not signed in. Safe to call
 // from Server Components and Server Actions (reads cookies via next/headers).
+// Wireframe mode: no accounts, every visitor is the same demo user.
 export async function getCurrentUserId(): Promise<number | null> {
-  const cookieStore = await cookies();
-  return verifySessionToken(cookieStore.get(SESSION_COOKIE)?.value);
+  return 1;
 }
 
-// Like getCurrentUserId, but redirects to /login instead of returning null.
-// Use this at the top of any page or action that requires a signed-in user
-// -- proxy.ts already gates the route, so this should never actually fire
-// in normal use, but it's a safe fallback (e.g. direct action invocation).
 export async function requireUserId(): Promise<number> {
-  const userId = await getCurrentUserId();
-  if (userId === null) redirect("/login");
-  return userId;
+  return 1;
 }

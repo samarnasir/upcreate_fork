@@ -1,5 +1,7 @@
 # Upcreate
 
+> **Wireframe build.** No database, auth, or API keys. Data reads return empty, saves are no-ops, and the sign-up/login forms just advance to the next screen. Run with `npm install && npm run dev`; deploys to Vercel with no env vars.
+
 A personal content-operating-system for planning, researching, and scripting your next 60–100
 Instagram videos — built directly from your growth-blueprint playbook (hooks, outlier research,
 the 70/20/10 ratio system, storytelling frameworks, etc.).

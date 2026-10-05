@@ -10,7 +10,6 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
   const { prompt } = await searchParams;
   const userId = await requireUserId();
   const brand = await getBrand(userId);
-  if (brand.onboardingComplete) redirect("/dashboard");
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center">

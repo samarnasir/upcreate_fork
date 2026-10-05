@@ -93,7 +93,7 @@ async function loadBrand(userId: number): Promise<BrandConfig> {
     ON CONFLICT (COALESCE(user_id, 0), key) DO NOTHING
   `;
   const rows = await sql<{ value: string }[]>`SELECT value FROM brand_config WHERE key = 'brand' AND user_id = ${userId}`;
-  return { ...DEFAULT_BRAND, ...JSON.parse(rows[0].value) };
+  return rows[0] ? { ...DEFAULT_BRAND, ...JSON.parse(rows[0].value) } : DEFAULT_BRAND;
 }
 
 export async function getBrand(userId: number): Promise<BrandConfig> {
