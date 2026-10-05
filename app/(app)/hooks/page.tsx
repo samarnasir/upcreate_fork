@@ -23,7 +23,7 @@ export default async function HooksPage() {
     getBrand(userId),
     sql<HookStack[]>`SELECT * FROM hook_stacks WHERE user_id = ${userId} ORDER BY created_at DESC`,
   ]);
-  const inputClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
+  const inputClass = "w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5";
   const selectClass = inputClass;
 
   return (

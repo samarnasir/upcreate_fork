@@ -26,11 +26,17 @@ export default function BrandForm({ brand }: { brand: BrandConfig }) {
     setTimeout(() => setSaved(false), 2000);
   }
 
-  const inputClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
-  const labelClass = "text-xs uppercase tracking-wide text-muted mb-1 block";
+  const inputClass = "w-full rounded-lg border bg-surface text-foreground text-sm px-3 py-2.5";
+  const labelClass = "text-xs font-medium text-muted mb-1.5 block";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      <div className="grid lg:grid-cols-[260px_1fr] gap-6 rounded-[28px] bg-card p-6 md:p-8">
+        <div>
+          <h3 className="font-heading text-lg">Identity</h3>
+          <p className="text-sm text-muted mt-1">How you show up on your profile and what you talk about.</p>
+        </div>
+        <div className="space-y-5">
       <div className="grid md:grid-cols-2 gap-4">
         <div>
           <label className={labelClass}>Instagram handle</label>
@@ -72,6 +78,13 @@ export default function BrandForm({ brand }: { brand: BrandConfig }) {
         <input className={inputClass} value={form.bioLink} onChange={(e) => set("bioLink", e.target.value)} />
       </div>
 
+      </div></div>
+      <div className="grid lg:grid-cols-[260px_1fr] gap-6 rounded-[28px] bg-card p-6 md:p-8">
+        <div>
+          <h3 className="font-heading text-lg">Growth & ratios</h3>
+          <p className="text-sm text-muted mt-1">Where the account is today and the content mix every batch is measured against.</p>
+        </div>
+        <div className="space-y-5">
       <div className="grid md:grid-cols-3 gap-4">
         <div>
           <label className={labelClass}>Follower count</label>
@@ -151,6 +164,13 @@ export default function BrandForm({ brand }: { brand: BrandConfig }) {
         </div>
       </div>
 
+      </div></div>
+      <div className="grid lg:grid-cols-[260px_1fr] gap-6 rounded-[28px] bg-card p-6 md:p-8">
+        <div>
+          <h3 className="font-heading text-lg">Positioning</h3>
+          <p className="text-sm text-muted mt-1">What makes you credible and hard to copy. Generators lean on this for voice.</p>
+        </div>
+        <div className="space-y-5">
       <div>
         <label className={labelClass}>Proprietary value / credibility</label>
         <textarea className={inputClass} rows={3} value={form.proprietaryValue} onChange={(e) => set("proprietaryValue", e.target.value)} />
@@ -166,12 +186,15 @@ export default function BrandForm({ brand }: { brand: BrandConfig }) {
         <textarea className={inputClass} rows={3} value={form.humanAlpha} onChange={(e) => set("humanAlpha", e.target.value)} />
       </div>
 
-      <button
-        onClick={handleSave}
-        className="rounded-full bg-accent text-accent-deep text-sm font-medium px-5 py-2.5"
-      >
-        {saved ? "Saved ✓" : "Save brand config"}
-      </button>
+      </div></div>
+      <div className="sticky bottom-4 flex justify-end">
+        <button
+          onClick={handleSave}
+          className="rounded-full bg-accent text-accent-deep text-sm font-medium px-6 py-3"
+        >
+          {saved ? "Saved ✓" : "Save changes"}
+        </button>
+      </div>
     </div>
   );
 }

@@ -27,7 +27,7 @@ function Select({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5"
+        className="w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5"
       >
         <option value={ALL}>All</option>
         {options.map((o) => (
@@ -111,7 +111,7 @@ export default function CarouselLibraryClient({ carousels }: { carousels: Librar
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search title or topic..."
-            className="flex-1 rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5"
+            className="flex-1 rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5"
           />
           <button
             onClick={resetFilters}

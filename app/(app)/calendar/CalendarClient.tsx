@@ -247,7 +247,7 @@ export default function CalendarClient({ items, scripts }: { items: CalendarItem
                     <select
                       name="status"
                       defaultValue={item.status}
-                      className="rounded-full border border-border/15 bg-white text-foreground text-xs px-2 py-1"
+                      className="rounded-full border border-border/15 bg-surface text-foreground text-xs px-2 py-1"
                     >
                       {CALENDAR_STATUSES.map((s) => (
                         <option key={s} value={s}>
@@ -272,12 +272,12 @@ export default function CalendarClient({ items, scripts }: { items: CalendarItem
             value={scriptSearch}
             onChange={(e) => setScriptSearch(e.target.value)}
             placeholder="Search by script name..."
-            className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5 mb-2"
+            className="w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5 mb-2"
           />
           <select
             value={selectedScriptId}
             onChange={(e) => setSelectedScriptId(e.target.value)}
-            className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5 mb-1"
+            className="w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5 mb-1"
           >
             <option value="">-- pick a script ({filteredScripts.length} of {scripts.length}) --</option>
             {filteredScripts.map((s) => (

@@ -48,7 +48,7 @@ import { JOURNEY_BATCH, JOURNEY_START_WEEK } from "@/lib/seed-data/journeyBatch"
 import { CATEGORIES_7_BATCH, CATEGORIES_7_START_WEEK } from "@/lib/seed-data/categoriesBatch7";
 import { CATEGORIES_8_BATCH, CATEGORIES_8_START_WEEK } from "@/lib/seed-data/categoriesBatch8";
 import { CATEGORIES_9_BATCH, CATEGORIES_9_START_WEEK } from "@/lib/seed-data/categoriesBatch9";
-import { Card, SectionHeader, Badge } from "@/app/components/ui";
+import { Card, SectionHeader, Badge, PageSection } from "@/app/components/ui";
 import PromptRunner from "@/app/components/PromptRunner";
 import CalendarClient, { type CalendarItem, type PickerScript, ResetCalendarButton } from "./CalendarClient";
 
@@ -125,7 +125,7 @@ export default async function CalendarPage() {
     conceptRatio: brand.conceptRatio,
   });
 
-  const selectClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
+  const selectClass = "w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5";
   const inputClass = selectClass;
 
   return (
@@ -136,7 +136,20 @@ export default async function CalendarPage() {
         description="Plan monthly batches, hold yourself to your pillar and concept ratios, and let Gemini propose the next set of topics."
       />
 
-      <div className="grid md:grid-cols-2 gap-4 mb-8">
+      <PageSection
+        title="Schedule"
+        actions={
+          <a href="/api/export/calendar" className="text-sm rounded-full border border-border/15 px-4 py-2 hover:bg-foreground/5">
+            Export to Word
+          </a>
+        }
+      >
+      <CalendarClient items={items} scripts={scripts} />
+      </PageSection>
+
+
+      <PageSection title="Batch tools" description="Track your ratios, generate topic ideas, and add items in bulk or one at a time.">
+      <div className="grid md:grid-cols-2 gap-4 mb-4">
         <Card>
           <h3 className="font-heading text-xl mb-3">Ratio tracker</h3>
           <p className="text-sm text-muted mb-1">
@@ -160,7 +173,7 @@ export default async function CalendarPage() {
         </Card>
       </div>
 
-      <details className="mb-8 rounded-[28px] border border-border/15 bg-card/40">
+      <details className="mb-4 rounded-[28px] bg-card">
         <summary className="cursor-pointer select-none px-5 py-4 font-heading text-xl flex items-center justify-between">
           <span>Import content batches</span>
           <span className="text-xs text-muted font-sans font-normal">
@@ -518,7 +531,7 @@ export default async function CalendarPage() {
         </div>
       </details>
 
-      <details className="mb-8 rounded-[28px] border border-border/15 bg-card/40">
+      <details className="mb-4 rounded-[28px] bg-card">
         <summary className="cursor-pointer select-none px-5 py-4 font-heading text-xl">Add a single item manually</summary>
         <div className="px-5 pb-5">
       <Card className="mb-0">
@@ -629,19 +642,10 @@ export default async function CalendarPage() {
         </div>
       </details>
 
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-heading text-xl">Your calendar</h3>
-        <a
-          href="/api/export/calendar"
-          className="text-xs rounded-full border border-border/20 px-3 py-1.5 hover:bg-foreground/5"
-        >
-          Export to Word
-        </a>
-      </div>
 
-      <CalendarClient items={items} scripts={scripts} />
+      </PageSection>
 
-      <details className="mt-8 rounded-[28px] border border-red-400/20 bg-card/40">
+      <details className="rounded-[28px] border border-red-700/20">
         <summary className="cursor-pointer select-none px-5 py-4 font-heading text-lg text-red-700/80">
           Danger zone: reset calendar
         </summary>

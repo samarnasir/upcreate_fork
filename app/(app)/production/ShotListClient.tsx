@@ -47,7 +47,7 @@ export default function ShotListClient({ scripts }: { scripts: ScriptRow[] }) {
       <select
         value={scriptId}
         onChange={(e) => selectScript(e.target.value)}
-        className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5 mb-4"
+        className="w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5 mb-4"
       >
         <option value="">Select a saved script…</option>
         {scripts.map((s) => (

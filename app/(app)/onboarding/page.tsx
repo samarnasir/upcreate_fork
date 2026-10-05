@@ -27,55 +27,55 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-muted block mb-1">Instagram handle</label>
-              <input name="handle" required className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5" placeholder="yourhandle" />
+              <input name="handle" required className="w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5" placeholder="yourhandle" />
             </div>
             <div>
               <label className="text-xs text-muted block mb-1">Display name / tagline</label>
-              <input name="nameField" required className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5" placeholder="Jane | Marketing Coach" />
+              <input name="nameField" required className="w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5" placeholder="Jane | Marketing Coach" />
             </div>
           </div>
 
           <div>
             <label className="text-xs text-muted block mb-1">Niche</label>
-            <input name="niche" required defaultValue={prompt} className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5" placeholder="e.g. Market Entry & Business Consulting" />
+            <input name="niche" required defaultValue={prompt} className="w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5" placeholder="e.g. Market Entry & Business Consulting" />
           </div>
 
           <div>
             <label className="text-xs text-muted block mb-1">Sub-niches / topics (comma separated)</label>
-            <input name="subniches" className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5" placeholder="Pricing, Client onboarding, Founder lessons" />
+            <input name="subniches" className="w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5" placeholder="Pricing, Client onboarding, Founder lessons" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-muted block mb-1">Occupation / title</label>
-              <input name="occupation" className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5" placeholder="Founder & CEO, Acme Co." />
+              <input name="occupation" className="w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5" placeholder="Founder & CEO, Acme Co." />
             </div>
             <div>
               <label className="text-xs text-muted block mb-1">Bio link / CTA destination</label>
-              <input name="bioLink" className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5" placeholder="Link in bio" />
+              <input name="bioLink" className="w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5" placeholder="Link in bio" />
             </div>
           </div>
 
           <div>
             <label className="text-xs text-muted block mb-1">Founder story (a paragraph or two)</label>
-            <textarea name="founderStory" rows={3} className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5" placeholder="How you got into this, what makes your perspective different..." />
+            <textarea name="founderStory" rows={3} className="w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5" placeholder="How you got into this, what makes your perspective different..." />
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div>
               <label className="text-xs text-muted block mb-1">Current followers</label>
-              <input name="followerCount" type="number" defaultValue={0} className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5" />
+              <input name="followerCount" type="number" defaultValue={0} className="w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5" />
             </div>
             <div>
               <label className="text-xs text-muted block mb-1">Account status</label>
-              <select name="accountStatus" className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5">
+              <select name="accountStatus" className="w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5">
                 <option value="new">New</option>
                 <option value="established">Established</option>
               </select>
             </div>
             <div>
               <label className="text-xs text-muted block mb-1">Posts per week</label>
-              <select name="timesPerWeek" className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5">
+              <select name="timesPerWeek" className="w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5">
                 <option value="1-2">1-2</option>
                 <option value="3-4">3-4</option>
                 <option value="5+">5+</option>

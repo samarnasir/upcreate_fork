@@ -28,7 +28,7 @@ function Select({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5"
+        className="w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5"
       >
         <option value={ALL}>All</option>
         {options.map((o) => (
@@ -120,7 +120,7 @@ export default function LibraryClient({ scripts }: { scripts: LibraryScript[] })
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search title or angle..."
-            className="flex-1 rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5"
+            className="flex-1 rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5"
           />
           <button
             onClick={resetFilters}
@@ -212,7 +212,7 @@ function ResultsList({
                       required
                       type="date"
                       name="date"
-                      className="rounded-lg border border-border/15 bg-white text-foreground text-xs p-1.5"
+                      className="rounded-lg border border-border/15 bg-surface text-foreground text-xs p-1.5"
                     />
                     <button className="text-xs rounded-full bg-accent text-accent-deep font-medium px-3 py-1.5">
                       Add

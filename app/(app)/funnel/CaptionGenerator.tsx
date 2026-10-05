@@ -11,7 +11,7 @@ export default function CaptionGenerator({ brand }: { brand: BrandConfig }) {
   const [ctaType, setCtaType] = useState("follow");
 
   const prompt = buildCaptionPrompt(brand, { hook: hook || "(enter a hook below)", ctaType, topic });
-  const inputClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
+  const inputClass = "w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5";
 
   return (
     <div>

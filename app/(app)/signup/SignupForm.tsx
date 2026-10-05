@@ -16,7 +16,7 @@ export default function SignupForm({ prompt }: { prompt?: string }) {
           name="email"
           autoFocus
           required
-          className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5"
+          className="w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5"
         />
       </div>
       <div>
@@ -26,7 +26,7 @@ export default function SignupForm({ prompt }: { prompt?: string }) {
           name="password"
           required
           minLength={8}
-          className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5"
+          className="w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5"
         />
         <p className="text-[11px] text-muted mt-1">At least 8 characters.</p>
       </div>

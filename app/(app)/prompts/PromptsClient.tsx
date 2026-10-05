@@ -34,7 +34,7 @@ import {
 import { Card, Badge, SubTabs } from "@/app/components/ui";
 import PromptRunner from "@/app/components/PromptRunner";
 
-const inputClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
+const inputClass = "w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5";
 
 const DIRECTORY = [
   { label: "Content Calendar", where: "/calendar", note: "Full batch planner + ratio tracker" },

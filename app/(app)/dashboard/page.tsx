@@ -2,7 +2,9 @@ import Link from "next/link";
 import { sql } from "@/lib/db";
 import { getBrand } from "@/lib/brand";
 import { requireUserId } from "@/lib/auth";
-import { Card, SectionHeader, Badge } from "@/app/components/ui";
+import { Card, Badge, PageSection, Stat } from "@/app/components/ui";
+import { NAV_GROUPS } from "@/app/components/nav-config";
+import { Icon } from "@/app/components/Icons";
 
 function levelFor(followers: number) {
   if (followers < 1000) return { level: 1, floor: 0, ceil: 1000, name: "Foundation (0 -> 1k)" };
@@ -39,103 +41,135 @@ export default async function DashboardPage() {
   const authorityPct = totalItems ? Math.round((authorityCount / totalItems) * 100) : 0;
   const journeyPct = totalItems ? 100 - authorityPct : 0;
 
-  const links = [
-    { href: "/brand", label: "Brand Foundation", desc: "Niche, story, visual identity, profile" },
-    { href: "/calendar", label: "Calendar & Batching", desc: "Plan the next batch, track ratios" },
-    { href: "/research", label: "Outlier Research", desc: "5x outlier log + keyword bank" },
-    { href: "/hooks", label: "Hook Lab", desc: "Hook stacks, 7 angles, universal templates" },
-    { href: "/scripts", label: "Script Studio", desc: "Authority, storytelling, signature series" },
-    { href: "/production", label: "Production Planner", desc: "Formats, equipment, shot lists" },
-    { href: "/funnel", label: "CTA & Funnel Mapper", desc: "TOFU/MOFU/BOFU + captions" },
-    { href: "/prompts", label: "Master Prompt Library", desc: "Every AI prompt in one place" },
-    { href: "/analytics", label: "Analytics & Levels", desc: "Top/bottom performers, double-downs" },
-  ];
+  const name = brand.nameField.split("|")[0].trim() || "Creator";
+  const conceptTotal = conceptCounts.reduce((t, r) => t + r.n, 0);
 
   return (
     <div>
-      <SectionHeader
-        num="00"
-        title={`Welcome back, ${brand.nameField.split("|")[0].trim() || "Creator"}`}
-        description="Your content operating system for the next 60-100 videos — built strictly on your growth blueprint."
-      />
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <Card>
-          <div className="text-xs text-muted uppercase tracking-wide mb-2">Current level</div>
-          <div className="font-heading text-3xl mb-1">Level {level.level}</div>
-          <div className="text-sm text-muted mb-3">{level.name}</div>
-          <div className="h-2 rounded-full bg-foreground/10 overflow-hidden">
-            <div className="h-full bg-accent" style={{ width: `${progressPct}%` }} />
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-4 mb-12">
+        <div className="rounded-[28px] bg-card p-8 md:p-10 flex flex-col justify-between min-h-[240px]">
+          <div>
+            <div className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted">Dashboard</div>
+            <h1 className="font-heading text-4xl md:text-[56px] leading-[1] mt-3">Welcome back, {name}</h1>
+            <p className="text-muted mt-4 max-w-xl">
+              Your content operating system for the next 60-100 videos, built on your growth blueprint.
+            </p>
           </div>
-          <div className="text-xs text-muted mt-2">
-            {brand.followerCount.toLocaleString()} / {level.ceil.toLocaleString()} followers ({level.ceil - brand.followerCount} to go)
+          <div className="flex flex-wrap gap-2 mt-8">
+            <Link href="/calendar" className="rounded-full bg-accent text-accent-deep text-sm font-medium px-5 py-2.5">Plan next batch</Link>
+            <Link href="/scripts" className="rounded-full border border-border/15 text-sm px-5 py-2.5 hover:bg-foreground/5">Write a script</Link>
           </div>
-        </Card>
-
-        <Card>
-          <div className="text-xs text-muted uppercase tracking-wide mb-2">Pillar ratio (target {brand.pillarRatio.authority}/{brand.pillarRatio.journey})</div>
-          <div className="flex items-baseline gap-2 mb-1">
-            <span className="font-heading text-3xl">{authorityPct}%</span>
-            <span className="text-sm text-muted">Authority</span>
-          </div>
-          <div className="h-2 rounded-full bg-foreground/10 overflow-hidden flex">
-            <div className="h-full bg-accent" style={{ width: `${authorityPct}%` }} />
-            <div className="h-full bg-accent-deep" style={{ width: `${journeyPct}%` }} />
-          </div>
-          <div className="text-xs text-muted mt-2">{journeyPct}% Journey · {totalItems} batched items total</div>
-        </Card>
-
-        <Card>
-          <div className="text-xs text-muted uppercase tracking-wide mb-2">Concept split (target {brand.conceptRatio.proven}/{brand.conceptRatio.doubleDown}/{brand.conceptRatio.experimental})</div>
-          <div className="flex flex-wrap gap-1.5 mt-1">
-            {["proven", "double_down", "experimental"].map((k) => {
-              const n = conceptCounts.find((r) => r.concept_bucket === k)?.n ?? 0;
-              return (
-                <Badge key={k} tone={k === "proven" ? "accent" : "default"}>
-                  {k.replace("_", " ")}: {n}
-                </Badge>
-              );
-            })}
-          </div>
-          <p className="text-xs text-muted mt-3">Account status: {brand.accountStatus} · posting {brand.postingCadence.timesPerWeek}x/week</p>
-        </Card>
-      </div>
-
-      <Card className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-heading text-2xl">Upcoming in the batch</h2>
-          <Link href="/calendar" className="text-sm text-foreground font-medium">Open calendar →</Link>
         </div>
-        {upcoming.length === 0 ? (
-          <p className="text-sm text-muted">No calendar items yet. Head to Calendar & Batching to plan your first batch.</p>
-        ) : (
-          <ul className="divide-y divide-border/10">
-            {upcoming.map((item) => (
-              <li key={item.id} className="py-2.5 flex items-center justify-between text-sm">
-                <span>
-                  <span className="text-muted mr-3">{item.date}</span>
-                  {item.topic || "(untitled topic)"}
-                </span>
-                <span className="flex gap-2">
-                  <Badge>{item.pillar}</Badge>
-                  <Badge tone="accent">{item.status}</Badge>
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Card>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {links.map((l) => (
-          <Link key={l.href} href={l.href}>
-            <Card className="h-full hover:border-accent/50 transition-colors">
-              <div className="font-heading text-xl mb-1">{l.label}</div>
-              <div className="text-sm text-muted">{l.desc}</div>
-            </Card>
-          </Link>
-        ))}
+        <div className="rounded-[28px] bg-accent text-accent-deep p-8 flex flex-col justify-between">
+          <div>
+            <div className="text-[11px] font-medium uppercase tracking-[0.1em] opacity-70">Current level</div>
+            <div className="font-heading text-[56px] leading-none mt-3">Level {level.level}</div>
+            <div className="text-sm mt-2 opacity-80">{level.name}</div>
+          </div>
+          <div className="mt-8">
+            <div className="h-2 rounded-full bg-accent-deep/15 overflow-hidden">
+              <div className="h-full bg-accent-deep" style={{ width: `${progressPct}%` }} />
+            </div>
+            <div className="text-xs mt-2 opacity-80">
+              {brand.followerCount.toLocaleString()} / {level.ceil.toLocaleString()} followers · {(level.ceil - brand.followerCount).toLocaleString()} to go
+            </div>
+          </div>
+        </div>
       </div>
+
+      <PageSection title="Content mix" description="How your planned batch tracks against the ratios set in Brand Foundation.">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Stat label="Planned items" value={totalItems} hint={`Posting ${brand.postingCadence.timesPerWeek}x / week`} />
+          <Stat
+            label="Authority"
+            value={`${authorityPct}%`}
+            hint={
+              <div>
+                <div className="h-1.5 rounded-full bg-foreground/10 overflow-hidden mb-2">
+                  <div className="h-full bg-accent" style={{ width: `${authorityPct}%` }} />
+                </div>
+                Target {brand.pillarRatio.authority}%
+              </div>
+            }
+          />
+          <Stat label="Journey" value={`${journeyPct}%`} hint={`Target ${brand.pillarRatio.journey}%`} />
+          <Stat
+            label="Concept split"
+            value={conceptTotal}
+            hint={
+              <div className="flex flex-wrap gap-1.5">
+                {["proven", "double_down", "experimental"].map((k) => (
+                  <Badge key={k} tone={k === "proven" ? "accent" : "default"}>
+                    {k.replace("_", " ")} {conceptCounts.find((r) => r.concept_bucket === k)?.n ?? 0}
+                  </Badge>
+                ))}
+              </div>
+            }
+          />
+        </div>
+      </PageSection>
+
+      <PageSection
+        title="Upcoming in the batch"
+        actions={<Link href="/calendar" className="text-sm font-medium hover:underline underline-offset-4">Open calendar →</Link>}
+      >
+        <Card>
+          {upcoming.length === 0 ? (
+            <div className="py-10 text-center">
+              <div className="font-heading text-xl">Nothing scheduled yet</div>
+              <p className="text-sm text-muted mt-2">Plan your first batch to see it here.</p>
+              <Link href="/calendar" className="inline-block mt-5 rounded-full bg-accent text-accent-deep text-sm font-medium px-5 py-2.5">Go to calendar</Link>
+            </div>
+          ) : (
+            <ul className="divide-y divide-border/10">
+              {upcoming.map((item) => (
+                <li key={item.id} className="py-3 flex items-center justify-between text-sm">
+                  <span>
+                    <span className="text-muted mr-3 tabular-nums">{item.date}</span>
+                    {item.topic || "(untitled topic)"}
+                  </span>
+                  <span className="flex gap-2">
+                    <Badge>{item.pillar}</Badge>
+                    <Badge tone="accent">{item.status}</Badge>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      </PageSection>
+
+      {NAV_GROUPS.filter((g) => g.title !== "Overview").map((g) => (
+        <PageSection key={g.title} title={g.title}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {g.items.map((l) => (
+              <Link key={l.href} href={l.href} className="group rounded-[28px] bg-card p-6 hover:bg-accent hover:text-accent-deep">
+                <span className="grid place-items-center h-10 w-10 rounded-full bg-surface text-foreground mb-6">
+                  <Icon name={l.icon} />
+                </span>
+                <div className="font-heading text-lg">{l.label}</div>
+                <div className="text-sm text-muted group-hover:text-accent-deep/70 mt-1">{DESCRIPTIONS[l.href]}</div>
+              </Link>
+            ))}
+          </div>
+        </PageSection>
+      ))}
     </div>
   );
 }
+
+const DESCRIPTIONS: Record<string, string> = {
+  "/brand": "Niche, story, visual identity, profile",
+  "/calendar": "Plan batches and track ratios",
+  "/research": "5x outlier log and keyword bank",
+  "/hooks": "Hook stacks, 7 angles, templates",
+  "/scripts": "Authority, storytelling, signature series",
+  "/improve": "Rewrite and tighten any script",
+  "/carousels": "Slide-by-slide carousel builder",
+  "/production": "Formats, equipment, shot lists",
+  "/funnel": "TOFU/MOFU/BOFU and captions",
+  "/analytics": "Top performers and double-downs",
+  "/library": "Ready-made script library",
+  "/carousel-library": "Saved and template carousels",
+  "/prompts": "Every AI prompt in one place",
+};

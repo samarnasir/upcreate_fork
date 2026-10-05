@@ -19,7 +19,7 @@ export default function SettingsClient({
   const [provider, setProvider] = useState(settings.provider);
   const [saved, setSaved] = useState(false);
 
-  const inputClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
+  const inputClass = "w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5";
 
   return (
     <form

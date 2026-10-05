@@ -21,8 +21,8 @@ export default function FolderNamer() {
   return (
     <div>
       <div className="grid md:grid-cols-2 gap-3 mb-3">
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5" />
-        <input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Video topic" className="w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5" />
+        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5" />
+        <input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Video topic" className="w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5" />
       </div>
       <div className="flex items-center gap-3">
         <code className="rounded-lg bg-background/40 border border-border/15 px-3 py-2 text-sm">{folder}/</code>

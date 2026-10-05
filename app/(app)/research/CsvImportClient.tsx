@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { createOutliersBulk, BulkOutlierRow } from "@/lib/actions";
 import { Card, Badge } from "@/app/components/ui";
 
-const inputClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
+const inputClass = "w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5";
 
 const VIEWS_ALIASES = ["views", "view count", "video_view_count", "play_count", "plays", "video views"];
 const LINK_ALIASES = ["link", "url", "permalink", "post url", "shortcode", "video url"];

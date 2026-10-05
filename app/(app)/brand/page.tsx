@@ -1,7 +1,7 @@
 import { getBrand } from "@/lib/brand";
 import { requireUserId } from "@/lib/auth";
 import { PROFILE_RIGHT_WRONG } from "@/lib/reference";
-import { Card, SectionHeader } from "@/app/components/ui";
+import { Card, PageSection, SectionHeader } from "@/app/components/ui";
 import BrandForm from "./BrandForm";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +18,12 @@ export default async function BrandPage() {
         description="The house analogy: foundation (niche), interior (content strategy), exterior (branding). Everything downstream reads from this."
       />
 
-      <div className="grid md:grid-cols-2 gap-6 mb-8">
+      <PageSection title="Brand config">
+        <BrandForm brand={brand} />
+      </PageSection>
+
+      <PageSection title="Reference" description="Your current visual identity and the profile rules to check against.">
+      <div className="grid md:grid-cols-2 gap-4">
         <Card>
           <h3 className="font-heading text-xl mb-3">Visual identity (exterior)</h3>
           <div className="flex flex-wrap gap-2 mb-4">
@@ -55,11 +60,7 @@ export default async function BrandPage() {
           </p>
         </Card>
       </div>
-
-      <Card>
-        <h3 className="font-heading text-xl mb-4">Edit brand config</h3>
-        <BrandForm brand={brand} />
-      </Card>
+      </PageSection>
     </div>
   );
 }

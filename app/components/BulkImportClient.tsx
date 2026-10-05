@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { bulkImportScriptsAction, type BulkImportResult } from "@/lib/bulk-import-actions";
 
-const inputClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
+const inputClass = "w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5";
 
 export default function BulkImportClient() {
   const [result, formAction, pending] = useActionState<BulkImportResult | null, FormData>(

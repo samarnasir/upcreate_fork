@@ -31,7 +31,7 @@ export default async function AnalyticsPage() {
   const top5 = [...withMultiple].sort((a, b) => b.views - a.views).slice(0, 5);
   const bottom5 = [...withMultiple].sort((a, b) => a.views - b.views).slice(0, 5);
 
-  const inputClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
+  const inputClass = "w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5";
 
   return (
     <div>

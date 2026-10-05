@@ -38,7 +38,7 @@ type TemplateRow = {
   template_text: string;
 };
 
-const inputClass = "w-full rounded-lg border border-border/15 bg-white text-foreground text-sm p-2.5";
+const inputClass = "w-full rounded-lg border border-border/15 bg-surface text-foreground text-sm p-2.5";
 
 export default function ScriptsClient({
   brand,
