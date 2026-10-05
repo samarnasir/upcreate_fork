@@ -55,7 +55,7 @@ export default async function DashboardPage() {
     <div>
       <SectionHeader
         num="00"
-        title={`Welcome back, ${brand.nameField.split("|")[0].trim()}`}
+        title={`Welcome back, ${brand.nameField.split("|")[0].trim() || "Creator"}`}
         description="Your content operating system for the next 60-100 videos — built strictly on your growth blueprint."
       />
 

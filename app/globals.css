@@ -18,18 +18,20 @@
   --color-accent: var(--accent);
   --color-accent-deep: var(--accent-deep);
   --color-card: var(--card);
-  --font-heading: var(--font-instrument-serif);
-  --font-sans: var(--font-jakarta);
+  --font-heading: "Geist", sans-serif;
+  --font-sans: "Geist", sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-jakarta), sans-serif;
+  font-family: "Geist", sans-serif;
 }
 
 h1, h2, h3, .font-heading {
-  font-family: var(--font-instrument-serif), serif;
+  font-family: "Geist", sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 ::selection {

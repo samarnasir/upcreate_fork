@@ -60,8 +60,7 @@ export default function Nav() {
       {/* Mobile top bar */}
       <div className="md:hidden sticky top-0 z-40 flex items-center justify-between border-b border-border/15 bg-background/95 backdrop-blur px-4 py-3">
         <Link href="/dashboard" className="flex items-center gap-2 font-heading text-xl leading-none">
-          <Logo size={22} />
-          Upcreate
+          <Logo size={28} />
         </Link>
         <button
           onClick={() => setOpen(true)}
@@ -85,11 +84,7 @@ export default function Nav() {
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2.5">
-                <Logo size={26} />
-                <div>
-                  <div className="font-heading text-2xl leading-none">Upcreate</div>
-                  <div className="text-xs text-muted mt-1">content os</div>
-                </div>
+                <Logo size={36} />
               </div>
               <button onClick={() => setOpen(false)} aria-label="Close menu" className="text-muted text-2xl leading-none px-2">
                 ×
@@ -106,11 +101,7 @@ export default function Nav() {
       {/* Desktop sidebar */}
       <nav className="w-64 shrink-0 border-r border-border/20 bg-card/40 px-5 py-8 hidden md:flex md:flex-col gap-1 sticky top-0 h-screen overflow-y-auto">
         <div className="mb-8 px-1 flex items-center gap-3">
-          <Logo size={32} />
-          <div>
-            <div className="font-heading text-3xl leading-none">Upcreate</div>
-            <div className="text-xs text-muted mt-1">content os</div>
-          </div>
+          <Logo size={44} />
         </div>
         <NavLinks pathname={pathname} />
         <form action={logoutAction} className="mt-auto pt-4">
