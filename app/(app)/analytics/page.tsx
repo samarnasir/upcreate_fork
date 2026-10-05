@@ -55,7 +55,7 @@ export default async function AnalyticsPage() {
         </form>
       </Card>
 
-      <div className="grid md:grid-cols-2 gap-4 mb-8">
+      <div className="stagger grid md:grid-cols-2 gap-4 mb-8">
         <Card>
           <h3 className="font-heading text-xl mb-3">Top 5 by views</h3>
           {top5.length === 0 ? (

@@ -147,7 +147,7 @@ function BrandResearchTab({ brand }: { brand: BrandConfig }) {
             </option>
           ))}
         </select>
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="stagger grid md:grid-cols-2 gap-4">
           <div>
             <h4 className="text-sm font-medium mb-2">Topic & framework research</h4>
             <PromptRunner prompt={buildTopicResearchPrompt(brand, { subniche })} label="Research topics" />
@@ -329,7 +329,7 @@ function ReferenceTab() {
 
       <Card>
         <h3 className="font-heading text-xl mb-3">Reach vs. conversion -- the real numbers</h3>
-        <div className="grid md:grid-cols-2 gap-4 text-sm">
+        <div className="stagger grid md:grid-cols-2 gap-4 text-sm">
           <div>
             <div className="font-medium mb-1">{REACH_VS_CONVERSION_EXAMPLE.easy.label}</div>
             <div className="text-muted">{REACH_VS_CONVERSION_EXAMPLE.easy.views} → {REACH_VS_CONVERSION_EXAMPLE.easy.result}</div>

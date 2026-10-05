@@ -23,7 +23,7 @@ export default async function BrandPage() {
       </PageSection>
 
       <PageSection title="Reference" description="Your current visual identity and the profile rules to check against.">
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="stagger grid md:grid-cols-2 gap-4">
         <Card>
           <h3 className="font-heading text-xl mb-3">Visual identity (exterior)</h3>
           <div className="flex flex-wrap gap-2 mb-4">

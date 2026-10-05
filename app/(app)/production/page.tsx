@@ -22,7 +22,7 @@ export default async function ProductionPage() {
     <div>
       <SectionHeader num="06" title="Production Planner" description="Filming formats, your equipment, and a shot list pulled straight from a saved script." />
 
-      <div className="grid md:grid-cols-2 gap-4 mb-8">
+      <div className="stagger grid md:grid-cols-2 gap-4 mb-8">
         <Card>
           <h3 className="font-heading text-xl mb-3">12 filming formats</h3>
           <ul className="space-y-2 text-sm">

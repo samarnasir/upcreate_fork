@@ -101,7 +101,7 @@ export default async function HooksPage() {
         )}
       </Card>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="stagger grid md:grid-cols-2 gap-6">
         <Card>
           <h3 className="font-heading text-xl mb-3">7 hook angles</h3>
           <ul className="space-y-3 text-sm">

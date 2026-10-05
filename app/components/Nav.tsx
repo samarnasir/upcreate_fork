@@ -21,7 +21,7 @@ function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () 
                   key={s.href}
                   href={s.href}
                   onClick={onNavigate}
-                  className={`flex items-center gap-3 rounded-full px-3 py-2 text-sm ${
+                  className={`flex items-center gap-3 rounded-full px-3 py-2 text-sm transition-all duration-200 hover:translate-x-0.5 ${
                     active ? "bg-accent text-accent-deep font-medium" : "text-foreground/75 hover:bg-foreground/5 hover:text-foreground"
                   }`}
                 >

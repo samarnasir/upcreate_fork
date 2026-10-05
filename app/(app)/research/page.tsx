@@ -45,7 +45,7 @@ export default async function ResearchPage() {
         description="Never guess. Every hook and script should trace back to a proven 5x outlier."
       />
 
-      <div className="grid md:grid-cols-2 gap-4 mb-8">
+      <div className="stagger grid md:grid-cols-2 gap-4 mb-8">
         <Card>
           <h3 className="font-heading text-xl mb-2">The 5x outlier rule</h3>
           <p className="text-sm text-muted">{FIVE_X_OUTLIER_RULE}</p>

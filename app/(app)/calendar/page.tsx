@@ -149,7 +149,7 @@ export default async function CalendarPage() {
 
 
       <PageSection title="Batch tools" description="Track your ratios, generate topic ideas, and add items in bulk or one at a time.">
-      <div className="grid md:grid-cols-2 gap-4 mb-4">
+      <div className="stagger grid md:grid-cols-2 gap-4 mb-4">
         <Card>
           <h3 className="font-heading text-xl mb-3">Ratio tracker</h3>
           <p className="text-sm text-muted mb-1">

@@ -26,7 +26,7 @@ function useClickOutside(onClose: () => void) {
 }
 
 const iconBtn = "relative grid place-items-center h-10 w-10 rounded-full text-foreground hover:bg-foreground/5";
-const panel = "absolute right-0 top-12 z-50 rounded-[18px] border border-border/10 bg-surface p-2";
+const panel = "animate-pop absolute right-0 top-12 z-50 rounded-[18px] border border-border/10 bg-surface p-2";
 
 export default function Topbar() {
   const pathname = usePathname();
@@ -64,9 +64,9 @@ export default function Topbar() {
 
       <div ref={ref} className="flex items-center gap-1">
         <div className="relative">
-          <button className={iconBtn} aria-label="Notifications" onClick={() => setMenu(menu === "notif" ? null : "notif")}>
+          <button className={`${iconBtn} bell`} aria-label="Notifications" onClick={() => setMenu(menu === "notif" ? null : "notif")}>
             <Icon name="bell" />
-            <span className="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-accent ring-2 ring-background" />
+            <span className="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-accent ring-2 ring-background pulse-dot" />
           </button>
           {menu === "notif" && (
             <div className={`${panel} w-80`}>
@@ -92,7 +92,7 @@ export default function Topbar() {
         </div>
 
         <button className={iconBtn} aria-label="Toggle dark mode" onClick={toggleTheme}>
-          <Icon name={dark ? "sun" : "moon"} />
+          <span key={dark ? "sun" : "moon"} className="animate-pop grid place-items-center"><Icon name={dark ? "sun" : "moon"} /></span>
         </button>
 
         <Link href="/settings" className={`${iconBtn} ${pathname === "/settings" ? "bg-foreground/5" : ""}`} aria-label="Settings">

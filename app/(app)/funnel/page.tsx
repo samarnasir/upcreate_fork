@@ -23,7 +23,7 @@ export default async function FunnelPage() {
     <div>
       <SectionHeader num="07" title="CTA & Funnel Mapper" description="Every video should know its job: reach (TOFU), nurture (MOFU), or convert (BOFU)." />
 
-      <div className="grid md:grid-cols-2 gap-4 mb-8">
+      <div className="stagger grid md:grid-cols-2 gap-4 mb-8">
         <Card>
           <h3 className="font-heading text-xl mb-3">CTA decision guide</h3>
           <ul className="text-sm space-y-2">

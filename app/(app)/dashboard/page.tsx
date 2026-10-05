@@ -60,7 +60,8 @@ export default async function DashboardPage() {
             <Link href="/scripts" className="rounded-full border border-border/15 text-sm px-5 py-2.5 hover:bg-foreground/5">Write a script</Link>
           </div>
         </div>
-        <div className="rounded-[28px] bg-accent text-accent-deep p-8 flex flex-col justify-between">
+        <div className="relative isolate overflow-hidden rounded-[28px] bg-accent text-accent-deep p-8 flex flex-col justify-between">
+          <div aria-hidden className="drift pointer-events-none absolute -z-10 -right-16 -top-16 h-56 w-56 rounded-full bg-surface/30" />
           <div>
             <div className="text-[11px] font-medium uppercase tracking-[0.1em] opacity-70">Current level</div>
             <div className="font-heading text-[56px] leading-none mt-3">Level {level.level}</div>
@@ -68,7 +69,7 @@ export default async function DashboardPage() {
           </div>
           <div className="mt-8">
             <div className="h-2 rounded-full bg-accent-deep/15 overflow-hidden">
-              <div className="h-full bg-accent-deep" style={{ width: `${progressPct}%` }} />
+              <div className="bar-grow h-full bg-accent-deep" style={{ width: `${progressPct}%` }} />
             </div>
             <div className="text-xs mt-2 opacity-80">
               {brand.followerCount.toLocaleString()} / {level.ceil.toLocaleString()} followers · {(level.ceil - brand.followerCount).toLocaleString()} to go
@@ -78,7 +79,7 @@ export default async function DashboardPage() {
       </div>
 
       <PageSection title="Content mix" description="How your planned batch tracks against the ratios set in Brand Foundation.">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Stat label="Planned items" value={totalItems} hint={`Posting ${brand.postingCadence.timesPerWeek}x / week`} />
           <Stat
             label="Authority"
@@ -86,7 +87,7 @@ export default async function DashboardPage() {
             hint={
               <div>
                 <div className="h-1.5 rounded-full bg-foreground/10 overflow-hidden mb-2">
-                  <div className="h-full bg-accent" style={{ width: `${authorityPct}%` }} />
+                  <div className="bar-grow h-full bg-accent" style={{ width: `${authorityPct}%` }} />
                 </div>
                 Target {brand.pillarRatio.authority}%
               </div>
@@ -141,13 +142,13 @@ export default async function DashboardPage() {
 
       {NAV_GROUPS.filter((g) => g.title !== "Overview").map((g) => (
         <PageSection key={g.title} title={g.title}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {g.items.map((l) => (
-              <Link key={l.href} href={l.href} className="group rounded-[28px] bg-card p-6 hover:bg-accent hover:text-accent-deep">
+              <Link key={l.href} href={l.href} className="lift group rounded-[28px] bg-card p-6 hover:bg-accent hover:text-accent-deep">
                 <span className="grid place-items-center h-10 w-10 rounded-full bg-surface text-foreground mb-6">
                   <Icon name={l.icon} />
                 </span>
-                <div className="font-heading text-lg">{l.label}</div>
+                <div className="font-heading text-lg flex items-center justify-between">{l.label}<span className="arrow text-muted group-hover:text-accent-deep">→</span></div>
                 <div className="text-sm text-muted group-hover:text-accent-deep/70 mt-1">{DESCRIPTIONS[l.href]}</div>
               </Link>
             ))}

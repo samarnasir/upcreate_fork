@@ -108,7 +108,7 @@ function AuthorityTab({ brand }: { brand: BrandConfig }) {
   }
 
   return (
-    <div className="grid lg:grid-cols-3 gap-6">
+    <div className="stagger grid lg:grid-cols-3 gap-6">
       <Card className="lg:col-span-2">
         <h3 className="font-heading text-xl mb-3">Authority / educational script generator</h3>
         <div className="grid md:grid-cols-2 gap-3 mb-3">
@@ -223,7 +223,7 @@ function StorytellingTab({ brand }: { brand: BrandConfig }) {
   }
 
   return (
-    <div className="grid lg:grid-cols-3 gap-6">
+    <div className="stagger grid lg:grid-cols-3 gap-6">
       <Card className="lg:col-span-2">
         <h3 className="font-heading text-xl mb-3">Storytelling script generator</h3>
         <p className="text-xs text-muted mb-3">Journey asset on file: {brand.journeyAssets}</p>
