@@ -4,6 +4,7 @@ import { requireUserId } from "@/lib/auth";
 import { createOwnPost, deleteOwnPost } from "@/lib/actions";
 import { Card, SectionHeader, Badge, DeleteForm } from "@/app/components/ui";
 import DoubleDownClient from "./DoubleDownClient";
+import AnalyticsOverview from "@/app/components/AnalyticsOverview";
 
 type Post = {
   id: number;
@@ -36,6 +37,8 @@ export default async function AnalyticsPage() {
   return (
     <div>
       <SectionHeader num="09" title="Analytics & Level Tracker" description="Track what actually worked, and double down on it deliberately." />
+
+      <AnalyticsOverview posts={posts.length} views={posts.reduce((t, p) => t + p.views, 0)} />
 
       <Card className="mb-8">
         <h3 className="font-heading text-xl mb-4">Log a posted video</h3>

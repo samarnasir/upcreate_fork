@@ -5,6 +5,7 @@ import { requireUserId } from "@/lib/auth";
 import { Card, Badge, PageSection, Stat } from "@/app/components/ui";
 import { NAV_GROUPS } from "@/app/components/nav-config";
 import { Icon } from "@/app/components/Icons";
+import Quickstart from "@/app/components/Quickstart";
 
 function levelFor(followers: number) {
   if (followers < 1000) return { level: 1, floor: 0, ceil: 1000, name: "Foundation (0 -> 1k)" };
@@ -76,6 +77,10 @@ export default async function DashboardPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="mb-12">
+        <Quickstart />
       </div>
 
       <PageSection title="Content mix" description="How your planned batch tracks against the ratios set in Brand Foundation.">

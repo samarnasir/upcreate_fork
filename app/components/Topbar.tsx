@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logoutAction } from "@/lib/auth-actions";
 import { Icon } from "./Icons";
+import SettingsModal from "./SettingsModal";
 import { NAV_GROUPS, HIDDEN_CHROME } from "./nav-config";
 
 const NOTIFICATIONS = [
@@ -32,6 +33,7 @@ export default function Topbar() {
   const pathname = usePathname();
   const [menu, setMenu] = useState<null | "notif" | "profile">(null);
   const [dark, setDark] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const ref = useClickOutside(() => setMenu(null));
 
   useEffect(() => setDark(document.documentElement.dataset.theme === "dark"), []);
@@ -51,6 +53,15 @@ export default function Topbar() {
   const item = group?.items.find((i) => i.href === pathname);
 
   return (
+    <>
+    <div className="flex items-center justify-between gap-3 bg-accent/25 px-4 md:px-10 h-10 text-sm">
+      <span className="flex items-center gap-2">
+        <Icon name="clock" size={16} />
+        <span className="font-medium">Free trial</span>
+        <span className="text-muted">· 4d 7h left</span>
+      </span>
+      <a href="#upgrade" className="rounded-full bg-accent text-accent-deep px-3 py-1 text-xs font-medium hover:brightness-95">Upgrade</a>
+    </div>
     <header className="sticky top-0 z-30 flex items-center justify-between gap-4 bg-background/90 backdrop-blur px-4 md:px-10 h-16 border-b border-border/10">
       <div className="pl-12 md:pl-0 text-sm text-muted truncate">
         {group && (
@@ -95,9 +106,9 @@ export default function Topbar() {
           <span key={dark ? "sun" : "moon"} className="animate-pop grid place-items-center"><Icon name={dark ? "sun" : "moon"} /></span>
         </button>
 
-        <Link href="/settings" className={`${iconBtn} ${pathname === "/settings" ? "bg-foreground/5" : ""}`} aria-label="Settings">
+        <button onClick={() => setSettingsOpen(true)} className={iconBtn} aria-label="Settings">
           <Icon name="settings" />
-        </Link>
+        </button>
 
         <div className="relative ml-2">
           <button
@@ -118,9 +129,9 @@ export default function Topbar() {
               <Link href="/brand" onClick={() => setMenu(null)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm hover:bg-foreground/5">
                 <Icon name="user" size={16} /> Brand profile
               </Link>
-              <Link href="/settings" onClick={() => setMenu(null)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm hover:bg-foreground/5">
+              <button onClick={() => { setMenu(null); setSettingsOpen(true); }} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm hover:bg-foreground/5">
                 <Icon name="settings" size={16} /> Settings
-              </Link>
+              </button>
               <form action={logoutAction}>
                 <button className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm hover:bg-foreground/5">
                   <Icon name="logout" size={16} /> Log out
@@ -131,5 +142,7 @@ export default function Topbar() {
         </div>
       </div>
     </header>
+    {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
+    </>
   );
 }
