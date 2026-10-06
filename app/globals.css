@@ -173,35 +173,21 @@ details > *:not(summary) { animation: fade-up 280ms ease both; }
   }
 }
 
-/* ---------- Film grain ---------- */
-/* A fixed, non-interactive noise layer over the whole UI. SVG turbulence is
-   inlined so there's no extra request; the slow step animation keeps the
-   grain alive without being distracting. */
+/* ---------- Grainy lime ---------- */
+/* Lime surfaces get a soft multi-tone gradient plus a noise layer, like a
+   risograph print. Applies to every lime fill (buttons, active nav, cards,
+   badges) including hover states. Base colour stays --accent for contrast. */
 :root {
-  --grain-opacity: 0.05;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --lime-flow:
+    radial-gradient(120% 140% at 0% 0%, #e4ff7a 0%, transparent 55%),
+    radial-gradient(110% 130% at 100% 100%, #8fe35a 0%, transparent 60%),
+    radial-gradient(80% 90% at 85% 10%, #f2f56a 0%, transparent 55%);
 }
-[data-theme="dark"] {
-  --grain-opacity: 0.09;
-}
-@keyframes grain-shift {
-  0%, 100% { transform: translate(0, 0); }
-  20% { transform: translate(-3%, 2%); }
-  40% { transform: translate(2%, -3%); }
-  60% { transform: translate(-2%, -1%); }
-  80% { transform: translate(3%, 3%); }
-}
-body::after {
-  content: "";
-  position: fixed;
-  inset: -50%;
-  z-index: 100;
-  pointer-events: none;
-  opacity: var(--grain-opacity);
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.4 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  animation: grain-shift 1.2s steps(5) infinite;
-}
-[data-theme="dark"] body::after {
-  mix-blend-mode: screen;
-  filter: invert(1);
+
+.bg-accent,
+.hover\:bg-accent:hover {
+  background-image: var(--grain), var(--lime-flow);
+  background-size: 160px 160px, 100% 100%, 100% 100%, 100% 100%;
+  background-blend-mode: overlay, normal, normal, normal;
 }
