@@ -118,7 +118,6 @@ export const TEAM = [
 
 export const BRANDS = [
   { initials: "CW", name: "Creator Workspace", plan: "Free trial" },
-  { initials: "SS", name: "Style Salon", plan: "Client · Pro" },
   { initials: "AC", name: "Acme Coffee", plan: "Client · Pro" },
 ];
 
