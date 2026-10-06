@@ -122,7 +122,7 @@ export default function PublishClient() {
         <div className="rounded-[28px] bg-card p-2">
           {QUEUE.map((q) => (
             <div key={q.id} className="flex flex-wrap items-center gap-4 rounded-[18px] px-4 py-3.5 hover:bg-surface">
-              <span className="grid place-items-center h-14 w-10 shrink-0 rounded-lg bg-foreground/10"><Icon name="play" size={14} className="text-muted" /></span>
+              <span className="grid place-items-center h-14 w-10 shrink-0 rounded-lg text-white" style={{ background: `linear-gradient(170deg, hsl(${q.id * 70} 40% 60%), hsl(${q.id * 70 - 20} 35% 20%))` }}><Icon name="play" size={14} /></span>
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium truncate">{q.title}</div>
                 <div className="text-xs text-muted mt-0.5">{q.when}</div>
@@ -141,9 +141,12 @@ export default function PublishClient() {
           <div className="rounded-[28px] bg-card p-2">
             {PUBLISHED.map((p) => (
               <div key={p.id} className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_repeat(3,72px)_64px] items-center gap-3 rounded-[18px] px-4 py-3.5 hover:bg-surface text-sm">
-                <div className="min-w-0">
+                <div className="min-w-0 flex items-center gap-3">
+                  <span className="h-14 w-10 shrink-0 rounded-lg" style={{ background: `linear-gradient(170deg, hsl(${p.hue} 40% 60%), hsl(${p.hue - 20} 35% 20%))` }} />
+                  <span className="min-w-0">
                   <div className="font-medium truncate">{p.title}</div>
                   <div className="text-xs text-muted">{p.when}</div>
+                  </span>
                 </div>
                 <span className="hidden sm:block text-right tabular-nums">{p.views.toLocaleString()}</span>
                 <span className="hidden sm:block text-right tabular-nums text-muted">{p.likes}</span>

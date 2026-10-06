@@ -51,9 +51,9 @@ export const QUEUE = [
 ];
 
 export const PUBLISHED = [
-  { id: 1, title: "How I'd enter the coffee industry", when: "Oct 3", views: 12400, likes: 860, comments: 94, multiple: 14.7 },
-  { id: 2, title: "My first $10k month, honestly", when: "Oct 1", views: 3100, likes: 240, comments: 31, multiple: 3.7 },
-  { id: 3, title: "3 signs your offer is underpriced", when: "Sep 28", views: 980, likes: 61, comments: 7, multiple: 1.2 },
+  { id: 1, hue: 15, title: "How I'd enter the coffee industry", when: "Oct 3", views: 12400, likes: 860, comments: 94, multiple: 14.7 },
+  { id: 2, hue: 330, title: "My first $10k month, honestly", when: "Oct 1", views: 3100, likes: 240, comments: 31, multiple: 3.7 },
+  { id: 3, hue: 200, title: "3 signs your offer is underpriced", when: "Sep 28", views: 980, likes: 61, comments: 7, multiple: 1.2 },
 ];
 
 export const BEST_TIMES = [
@@ -98,10 +98,29 @@ export const RECOMMENDATIONS = [
   { title: "Thursday 6-8pm is your best slot", body: "Posts in that window got 2.3x the views of your average.", cta: "Open publishing queue", href: "/publish" },
 ];
 
+export const TRENDING_REELS = [
+  { handle: "@maya.builds", hook: "Nobody tells you this about your first client", views: "182k", multiple: 44, hue: 25, style: "caption" as const },
+  { handle: "@thefounderdesk", hook: "I priced my service at $50", views: "301k", multiple: 25, hue: 210, style: "bold" as const },
+  { handle: "@opslena", hook: "3 questions before every sales call", views: "38k", multiple: 16, hue: 140, style: "split" as const },
+  { handle: "@ruthless.ops", hook: "Smart founder vs dumb founder: hiring", views: "92k", multiple: 12, hue: 280, style: "caption" as const },
+  { handle: "@studio.kade", hook: "If I started my agency again", views: "64k", multiple: 9, hue: 45, style: "bold" as const },
+  { handle: "@coffee.margins", hook: "How I'd enter the coffee industry", views: "12k", multiple: 14, hue: 15, style: "split" as const },
+];
+
+export const HOOK_ANGLE_EXAMPLES: Record<string, { hook: string; hue: number; style: "caption" | "bold" | "split" }> = {
+  "Framework / Formula / Acronym": { hook: "The 3-2-1 pricing formula", hue: 200, style: "bold" },
+  Comparison: { hook: "Smart founder vs dumb founder", hue: 280, style: "split" },
+  "Myth Bust / Common Mistake": { hook: "Stop sending proposals as PDFs", hue: 10, style: "caption" },
+  "Do vs Don't (Right vs Wrong)": { hook: "Do this, not that, on discovery calls", hue: 150, style: "split" },
+  "Educational Tip / Hack": { hook: "One email that doubled my replies", hue: 45, style: "caption" },
+  Transformation: { hook: "Year 1 vs year 3 of my business", hue: 330, style: "bold" },
+  Challenge: { hook: "Day 1 of landing 10 clients in 30 days", hue: 100, style: "caption" },
+};
+
 export const DISCOVERED_OUTLIERS = [
-  { handle: "@maya.builds", followers: "4.1k", views: "182k", multiple: 44, hook: "Nobody tells you this about your first client", age: "2d" },
-  { handle: "@thefounderdesk", followers: "12k", views: "301k", multiple: 25, hook: "I priced my service at $50. Here's what happened", age: "4d" },
-  { handle: "@opslena", followers: "2.3k", views: "38k", multiple: 16, hook: "3 questions I ask before every sales call", age: "1d" },
+  { handle: "@maya.builds", followers: "4.1k", views: "182k", multiple: 44, hook: "Nobody tells you this about your first client", age: "2d", hue: 25 },
+  { handle: "@thefounderdesk", followers: "12k", views: "301k", multiple: 25, hook: "I priced my service at $50. Here's what happened", age: "4d", hue: 210 },
+  { handle: "@opslena", followers: "2.3k", views: "38k", multiple: 16, hook: "3 questions I ask before every sales call", age: "1d", hue: 140 },
 ];
 
 export const SCRIPT_VERSIONS = [

@@ -6,6 +6,8 @@ import { Card, Badge, PageSection, Stat } from "@/app/components/ui";
 import { NAV_GROUPS } from "@/app/components/nav-config";
 import { Icon } from "@/app/components/Icons";
 import Quickstart from "@/app/components/Quickstart";
+import ReelCard from "@/app/components/ReelCard";
+import { TRENDING_REELS } from "@/lib/mock-data";
 
 function levelFor(followers: number) {
   if (followers < 1000) return { level: 1, floor: 0, ceil: 1000, name: "Foundation (0 -> 1k)" };
@@ -82,6 +84,18 @@ export default async function DashboardPage() {
       <div className="mb-12">
         <Quickstart />
       </div>
+
+      <PageSection
+        title="Trending in your niche"
+        description="Reels from creators your size that broke out this week."
+        actions={<Link href="/research" className="text-sm font-medium hover:underline underline-offset-4">See all outliers →</Link>}
+      >
+        <div className="stagger grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          {TRENDING_REELS.map((r) => (
+            <ReelCard key={r.handle} reel={r} />
+          ))}
+        </div>
+      </PageSection>
 
       <PageSection title="Content mix" description="How your planned batch tracks against the ratios set in Brand Foundation.">
         <div className="stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
