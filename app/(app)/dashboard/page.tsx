@@ -50,7 +50,7 @@ export default async function DashboardPage() {
   return (
     <div>
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-4 mb-12">
-        <div className="rounded-[28px] bg-card p-8 md:p-10 flex flex-col justify-between min-h-[240px]">
+        <div data-tour="dash-hero" className="rounded-[28px] bg-card p-8 md:p-10 flex flex-col justify-between min-h-[240px]">
           <div>
             <div className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted">Dashboard</div>
             <h1 className="font-heading text-4xl md:text-[56px] leading-[1] mt-3">Welcome back, {name}</h1>
@@ -63,7 +63,7 @@ export default async function DashboardPage() {
             <Link href="/scripts" className="rounded-full border border-border/15 text-sm px-5 py-2.5 hover:bg-foreground/5">Write a script</Link>
           </div>
         </div>
-        <div className="relative isolate overflow-hidden rounded-[28px] bg-accent text-accent-deep p-8 flex flex-col justify-between">
+        <div data-tour="dash-level" className="relative isolate overflow-hidden rounded-[28px] bg-accent text-accent-deep p-8 flex flex-col justify-between">
           <div aria-hidden className="drift pointer-events-none absolute -z-10 -right-16 -top-16 h-56 w-56 rounded-full bg-surface/30" />
           <div>
             <div className="text-[11px] font-medium uppercase tracking-[0.1em] opacity-70">Current level</div>

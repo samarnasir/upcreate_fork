@@ -80,7 +80,7 @@ function BrandSwitcher() {
   const [current, setCurrent] = useState(0);
   const b = BRANDS[current];
   return (
-    <div className="relative mb-6">
+    <div className="relative mb-6" data-tour="brand-switcher">
       <button onClick={() => setOpen(!open)} className="flex w-full items-center gap-3 rounded-[18px] bg-surface p-2.5 text-left hover:bg-foreground/5">
         <span className="grid place-items-center h-8 w-8 rounded-lg bg-deep-charcoal text-off-white text-xs font-medium">{b.initials}</span>
         <span className="min-w-0 flex-1">
@@ -178,7 +178,9 @@ export default function Nav() {
 
         {!collapsed && <BrandSwitcher />}
 
-        <NavLinks pathname={pathname} collapsed={collapsed} />
+        <div data-tour="sidebar">
+          <NavLinks pathname={pathname} collapsed={collapsed} />
+        </div>
         <div className="flex-1" />
         <Footer collapsed={collapsed} />
       </nav>

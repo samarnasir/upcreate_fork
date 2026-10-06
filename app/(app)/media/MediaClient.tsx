@@ -22,6 +22,7 @@ export default function MediaClient() {
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
         onDragLeave={() => setDragging(false)}
         onDrop={(e) => { e.preventDefault(); setDragging(false); }}
+        data-tour="media-drop"
         className={`mb-8 rounded-[28px] border-2 border-dashed p-8 text-center transition-colors ${dragging ? "border-accent bg-accent/20" : "border-border/15 bg-card"}`}
       >
         <span className="mx-auto grid place-items-center h-12 w-12 rounded-full bg-surface mb-3"><Icon name="upload" /></span>

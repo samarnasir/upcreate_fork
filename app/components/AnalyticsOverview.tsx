@@ -42,7 +42,7 @@ export default function AnalyticsOverview({ posts, views }: { posts: number; vie
         </div>
       </div>
 
-      <div className="stagger grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
+      <div data-tour="analytics-overview" className="stagger grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
         {tiles.map((t) => (
           <div key={t.label} className="lift rounded-[28px] bg-card p-5">
             <span className="grid place-items-center h-9 w-9 rounded-full bg-surface"><Icon name={t.icon} size={16} /></span>

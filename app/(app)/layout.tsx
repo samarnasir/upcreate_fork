@@ -5,10 +5,10 @@ import "@fontsource/geist/600.css";
 import "@fontsource/geist/700.css";
 import "../globals.css";
 import Nav from "@/app/components/Nav";
-import Tutorial from "@/app/components/Tutorial";
 import Topbar from "@/app/components/Topbar";
 import HelpBubble from "@/app/components/HelpBubble";
 import SectionTabs from "@/app/components/SectionTabs";
+import { TourProvider } from "@/app/components/Tour";
 
 export const metadata: Metadata = {
   title: "Upcreate",
@@ -30,6 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="min-h-full flex flex-col md:flex-row bg-background text-foreground">
+        <TourProvider>
         <Nav />
         <div className="flex-1 min-w-0 flex flex-col">
           <Topbar />
@@ -38,8 +39,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
           </main>
         </div>
-        <Tutorial />
         <HelpBubble />
+        </TourProvider>
       </body>
     </html>
   );

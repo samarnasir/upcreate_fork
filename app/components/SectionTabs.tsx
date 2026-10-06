@@ -11,7 +11,7 @@ export default function SectionTabs() {
   if (!found?.item.tabs) return null;
 
   return (
-    <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+    <div data-tour="section-tabs" className="mb-8 flex flex-wrap items-center justify-between gap-3">
       <div className="inline-flex rounded-full bg-card p-1">
         {found.item.tabs.map((t) => {
           const active = t.href === pathname;

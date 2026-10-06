@@ -41,7 +41,7 @@ export default function PipelineBoard() {
         </div>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0">
+      <div data-tour="pipeline-board" className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0">
         {STAGES.map((stage) => {
           const col = visible.filter((c) => c.stage === stage.id);
           return (

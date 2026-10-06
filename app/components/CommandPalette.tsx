@@ -26,6 +26,7 @@ export function SearchButton({ onOpen }: { onOpen: () => void }) {
   return (
     <button
       onClick={onOpen}
+      data-tour="search"
       className="hidden lg:flex items-center gap-2 rounded-full bg-card px-4 py-2 text-sm text-muted hover:text-foreground w-72"
     >
       <Icon name="search" size={15} />
