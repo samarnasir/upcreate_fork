@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { loginAction } from "@/lib/auth-actions";
 
 export default function LoginForm() {
@@ -19,7 +20,10 @@ export default function LoginForm() {
         />
       </div>
       <div>
-        <label className="text-xs text-muted block mb-1">Password</label>
+        <div className="flex items-center justify-between mb-1">
+          <label className="text-xs text-muted block">Password</label>
+          <Link href="/forgot-password" className="text-xs text-muted hover:text-foreground">Forgot password?</Link>
+        </div>
         <input
           type="password"
           name="password"

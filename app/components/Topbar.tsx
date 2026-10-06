@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { logoutAction } from "@/lib/auth-actions";
 import { Icon } from "./Icons";
 import SettingsModal from "./SettingsModal";
+import CommandPalette, { SearchButton } from "./CommandPalette";
 import { HIDDEN_CHROME, findItem } from "./nav-config";
 
 const NOTIFICATIONS = [
@@ -34,6 +35,18 @@ export default function Topbar() {
   const [menu, setMenu] = useState<null | "notif" | "profile">(null);
   const [dark, setDark] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearchOpen((o) => !o);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
   const ref = useClickOutside(() => setMenu(null));
 
   useEffect(() => setDark(document.documentElement.dataset.theme === "dark"), []);
@@ -75,7 +88,14 @@ export default function Topbar() {
         {pathname === "/settings" && <span className="text-foreground">Settings</span>}
       </div>
 
+      <div className="flex-1 flex justify-center">
+        <SearchButton onOpen={() => setSearchOpen(true)} />
+      </div>
+
       <div ref={ref} className="flex items-center gap-1">
+        <button className={`${iconBtn} lg:hidden`} aria-label="Search" onClick={() => setSearchOpen(true)}>
+          <Icon name="search" />
+        </button>
         <div className="relative">
           <button className={`${iconBtn} bell`} aria-label="Notifications" onClick={() => setMenu(menu === "notif" ? null : "notif")}>
             <Icon name="bell" />
@@ -145,6 +165,7 @@ export default function Topbar() {
       </div>
     </header>
     {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
+    <CommandPalette open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }

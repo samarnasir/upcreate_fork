@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { logoutAction } from "@/lib/auth-actions";
 import { Icon, type IconName } from "./Icons";
+import { TEAM, PLANS, PLATFORMS } from "@/lib/mock-data";
 
 const TABS: { id: string; label: string; icon: IconName }[] = [
   { id: "account", label: "Account", icon: "user" },
+  { id: "team", label: "Team", icon: "users" },
   { id: "billing", label: "Billing", icon: "card" },
   { id: "credits", label: "AI Credits", icon: "sparkle" },
   { id: "ai", label: "AI Provider", icon: "key" },
@@ -77,11 +79,58 @@ function Panel({ tab, sub }: { tab: string; sub: string }) {
         <button className="rounded-full border border-red-700/30 text-red-700 px-4 py-2 text-sm">Delete account</button>
       </Row>
     );
+  if (tab === "team")
+    return (
+      <>
+        <div className="flex gap-2 mb-4">
+          <input placeholder="Invite by email" className="flex-1 rounded-lg border bg-surface px-3 py-2 text-sm" />
+          <select className="rounded-lg border bg-surface px-3 py-2 text-sm">
+            <option>Editor</option>
+            <option>Strategist</option>
+            <option>Client (approve only)</option>
+          </select>
+          <button className="rounded-full bg-accent text-accent-deep px-4 py-2 text-sm font-medium">Invite</button>
+        </div>
+        <div className="rounded-[18px] bg-card p-1">
+          {TEAM.map((m) => (
+            <div key={m.email} className="flex items-center gap-3 rounded-[14px] px-3 py-2.5">
+              <span className="grid place-items-center h-9 w-9 rounded-full bg-surface text-sm font-medium">{m.name[0]}</span>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-medium">{m.name}</div>
+                <div className="text-xs text-muted truncate">{m.email}</div>
+              </div>
+              <span className="rounded-full bg-surface px-3 py-1 text-xs">{m.role}</span>
+            </div>
+          ))}
+        </div>
+        <Row label="Approvals">
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-muted">Require client approval before a post is scheduled</span>
+            <Toggle />
+          </div>
+        </Row>
+      </>
+    );
   if (tab === "billing")
     return (
       <>
-        <Row label="Current plan"><span className="font-medium">Free trial</span> <span className="text-muted">· 4 days left</span></Row>
-        <Row label="Upgrade"><button className="rounded-full bg-accent text-accent-deep px-5 py-2.5 text-sm font-medium">Upgrade to Pro</button></Row>
+        <div className="grid md:grid-cols-3 gap-3 mb-2">
+          {PLANS.map((p) => (
+            <div key={p.name} className={`rounded-[18px] p-5 flex flex-col ${p.highlight ? "bg-accent text-accent-deep" : "bg-card"}`}>
+              <div className="text-sm font-medium">{p.name}</div>
+              <div className="font-heading text-3xl mt-2">{p.price}<span className="text-sm opacity-60">/mo</span></div>
+              <div className={`text-xs mt-1 ${p.highlight ? "opacity-70" : "text-muted"}`}>{p.blurb}</div>
+              <ul className="mt-4 space-y-1.5 text-xs flex-1">
+                {p.features.map((f) => <li key={f} className="flex gap-1.5"><Icon name="check" size={13} /> {f}</li>)}
+              </ul>
+              <button className={`mt-4 rounded-full py-2 text-sm font-medium ${p.highlight ? "bg-accent-deep text-accent" : "bg-surface"}`}>
+                {p.name === "Starter" ? "Current plan" : `Upgrade to ${p.name}`}
+              </button>
+            </div>
+          ))}
+        </div>
+        <Row label="Trial">Free trial · <span className="text-muted">4 days left, then Starter</span></Row>
+        <Row label="Payment method"><button className="font-medium hover:underline underline-offset-4">+ Add card</button></Row>
         <Row label="Invoices"><span className="text-muted">No invoices yet.</span></Row>
       </>
     );
@@ -102,8 +151,22 @@ function Panel({ tab, sub }: { tab: string; sub: string }) {
   if (tab === "integrations")
     return (
       <>
-        {["Instagram", "TikTok", "YouTube", "ManyChat"].map((n) => (
-          <Row key={n} label={n}><button className="rounded-full border border-border/15 px-4 py-1.5 text-sm hover:bg-foreground/5">Connect</button></Row>
+        {PLATFORMS.map((p) => (
+          <Row key={p.id} label={p.label}>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-muted">{p.connected ? `${p.handle} · publishing and analytics sync on` : "Post and pull analytics automatically"}</span>
+              {p.connected ? (
+                <button className="rounded-full border border-border/15 px-4 py-1.5 text-sm hover:bg-foreground/5">Disconnect</button>
+              ) : (
+                <button className="rounded-full bg-accent text-accent-deep px-4 py-1.5 text-sm font-medium">Connect</button>
+              )}
+            </div>
+          </Row>
+        ))}
+        {["ManyChat", "Google Drive", "Notion", "Slack"].map((n) => (
+          <Row key={n} label={n}>
+            <div className="flex justify-end"><button className="rounded-full border border-border/15 px-4 py-1.5 text-sm hover:bg-foreground/5">Connect</button></div>
+          </Row>
         ))}
       </>
     );
@@ -113,6 +176,8 @@ function Panel({ tab, sub }: { tab: string; sub: string }) {
         <Row label="Batch reminders"><Toggle on /></Row>
         <Row label="Outlier alerts"><Toggle on /></Row>
         <Row label="Weekly summary email"><Toggle /></Row>
+        <Row label="Filming day reminder"><Toggle on /></Row>
+        <Row label="Post published / failed"><Toggle on /></Row>
       </>
     );
   if (tab === "privacy")

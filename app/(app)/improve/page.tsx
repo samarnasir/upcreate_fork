@@ -1,6 +1,7 @@
 import { sql } from "@/lib/db";
 import { getBrand } from "@/lib/brand";
 import { requireUserId } from "@/lib/auth";
+import VersionHistory from "@/app/components/VersionHistory";
 import { Card, SectionHeader } from "@/app/components/ui";
 import { SCRIPT_ANGLES, STORY_TYPES, FILMING_FORMATS } from "@/lib/reference";
 import ImproveClient, { type ExistingScript } from "./ImproveClient";
@@ -27,6 +28,8 @@ export default async function ImprovePage() {
         title="Script Improver"
         description="Hand over an existing script -- pasted, or pulled from your library -- and get a diagnose-first, targeted rewrite grounded in every angle, format, funnel stage, and CTA rule this app tracks."
       />
+
+      <VersionHistory />
 
       <details className="mb-8 rounded-[28px] border border-border/15 bg-card/40">
         <summary className="cursor-pointer select-none px-5 py-4 font-heading text-xl">

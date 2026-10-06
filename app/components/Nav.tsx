@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import Logo from "./Logo";
 import { Icon, type IconName } from "./Icons";
 import { NAV_GROUPS, HIDDEN_CHROME, isItemActive } from "./nav-config";
+import { BRANDS } from "@/lib/mock-data";
 
 const FOOTER_LINKS: { href: string; label: string; icon: IconName }[] = [
   { href: "#refer", label: "Refer & Earn", icon: "gift" },
@@ -74,6 +75,43 @@ function Footer({ collapsed }: { collapsed?: boolean }) {
   );
 }
 
+function BrandSwitcher() {
+  const [open, setOpen] = useState(false);
+  const [current, setCurrent] = useState(0);
+  const b = BRANDS[current];
+  return (
+    <div className="relative mb-6">
+      <button onClick={() => setOpen(!open)} className="flex w-full items-center gap-3 rounded-[18px] bg-surface p-2.5 text-left hover:bg-foreground/5">
+        <span className="grid place-items-center h-8 w-8 rounded-lg bg-deep-charcoal text-off-white text-xs font-medium">{b.initials}</span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-medium truncate">{b.name}</span>
+          <span className="block text-xs text-muted">{b.plan}</span>
+        </span>
+        <Icon name="chevron" size={14} className={`text-muted transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="animate-pop absolute left-0 right-0 top-full mt-2 z-50 rounded-[18px] border border-border/10 bg-surface p-1.5" style={{ transformOrigin: "top" }}>
+          <div className="px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-[0.1em] text-muted">Brands</div>
+          {BRANDS.map((x, i) => (
+            <button
+              key={x.name}
+              onClick={() => { setCurrent(i); setOpen(false); }}
+              className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-sm hover:bg-foreground/5"
+            >
+              <span className="grid place-items-center h-7 w-7 rounded-md bg-deep-charcoal text-off-white text-[10px] font-medium">{x.initials}</span>
+              <span className="flex-1 truncate">{x.name}</span>
+              {i === current && <Icon name="check" size={14} />}
+            </button>
+          ))}
+          <button className="mt-1 flex w-full items-center gap-2.5 rounded-xl border-t border-border/10 px-2.5 py-2 text-sm text-muted hover:text-foreground">
+            <Icon name="plus" size={14} /> Add brand
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -138,16 +176,7 @@ export default function Nav() {
           </button>
         </div>
 
-        {!collapsed && (
-          <button className="mb-6 flex items-center gap-3 rounded-[18px] bg-surface p-2.5 text-left hover:bg-foreground/5">
-            <span className="grid place-items-center h-8 w-8 rounded-lg bg-deep-charcoal text-off-white text-xs font-medium">CW</span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-sm font-medium truncate">Creator Workspace</span>
-              <span className="block text-xs text-muted">Free trial</span>
-            </span>
-            <Icon name="chevron" size={14} className="text-muted" />
-          </button>
-        )}
+        {!collapsed && <BrandSwitcher />}
 
         <NavLinks pathname={pathname} collapsed={collapsed} />
         <div className="flex-1" />

@@ -42,6 +42,18 @@ const PATHS = {
   lang: "M4 5h9M8.5 3v2M6 5c0 4 3 7 6 8M11 5c0 3-3 7-7 9M13 21l4-10 4 10M14.5 17h5",
   trash: "M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14",
   arrow: "M5 12h14M13 6l6 6-6 6",
+  kanban: "M4 4h4v16H4zM10 4h4v10h-4zM16 4h4v13h-4z",
+  send: "M21 3 3 10.5l7 2.5 2.5 7zM21 3l-11 10",
+  upload: "M12 16V4M7 9l5-5 5 5M4 16v4h16v-4",
+  play: "M7 4v16l13-8z",
+  image: "M4 4h16v16H4zM4 16l5-5 4 4 3-3 4 4M15 9h.01",
+  link: "M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1",
+  users: "M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21a7 7 0 0 1 14 0M17 3.5a4 4 0 0 1 0 7.5M22 21a7 7 0 0 0-4-6.3",
+  history: "M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2",
+  bolt: "M13 2 4 14h7l-1 8 9-12h-7z",
+  plus: "M12 5v14M5 12h14",
+  command: "M9 6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3z",
+  mail: "M3 5h18v14H3zM3 6l9 7 9-7",
 } as const;
 
 export type IconName = keyof typeof PATHS;

@@ -13,6 +13,7 @@ export const NAV_GROUPS: { title: string; items: Item[] }[] = [
     items: [
       { href: "/brand", label: "Brand Foundation", icon: "brand" },
       { href: "/calendar", label: "Calendar", icon: "calendar" },
+      { href: "/pipeline", label: "Pipeline", icon: "kanban" },
       { href: "/research", label: "Outlier Research", icon: "search" },
     ],
   },
@@ -39,15 +40,32 @@ export const NAV_GROUPS: { title: string; items: Item[] }[] = [
           { href: "/carousel-library", label: "Library", description: "Saved and template carousels" },
         ],
       },
-      { href: "/production", label: "Production", icon: "camera" },
+      {
+        href: "/production",
+        label: "Production",
+        icon: "camera",
+        tabs: [
+          { href: "/production", label: "Planner", description: "Formats, equipment, shot lists" },
+          { href: "/media", label: "Media Bank", description: "Footage and images, tagged and linked to scripts" },
+        ],
+      },
       { href: "/prompts", label: "Prompt Library", icon: "terminal" },
     ],
   },
   {
     title: "Grow",
     items: [
+      { href: "/publish", label: "Publish", icon: "send" },
       { href: "/funnel", label: "CTA & Funnel", icon: "funnel" },
-      { href: "/analytics", label: "Analytics", icon: "chart" },
+      {
+        href: "/analytics",
+        label: "Analytics",
+        icon: "chart",
+        tabs: [
+          { href: "/analytics", label: "Performance", description: "Logged posts, levels and double-downs" },
+          { href: "/insights", label: "Insights", description: "What's working and what to make next" },
+        ],
+      },
     ],
   },
 ];
@@ -64,5 +82,5 @@ export function findItem(pathname: string) {
   return null;
 }
 
-export const HIDDEN_CHROME = ["/login", "/signup", "/onboarding"];
+export const HIDDEN_CHROME = ["/login", "/signup", "/onboarding", "/forgot-password"];
 

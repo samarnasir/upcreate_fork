@@ -1,6 +1,7 @@
 import { sql } from "@/lib/db";
 import { getBrand } from "@/lib/brand";
 import { requireUserId } from "@/lib/auth";
+import OutlierDiscovery from "@/app/components/OutlierDiscovery";
 import { buildKeywordBankPrompt } from "@/lib/prompts";
 import { FIVE_X_OUTLIER_RULE, SCRIPT_ANGLES } from "@/lib/reference";
 import { createOutlier, toggleOutlierUsed, deleteOutlier } from "@/lib/actions";
@@ -44,6 +45,8 @@ export default async function ResearchPage() {
         title="Outlier Research Hub"
         description="Never guess. Every hook and script should trace back to a proven 5x outlier."
       />
+
+      <OutlierDiscovery />
 
       <div className="stagger grid md:grid-cols-2 gap-4 mb-8">
         <Card>
