@@ -155,6 +155,13 @@ export default async function DashboardPage() {
                 </span>
                 <div className="font-heading text-lg flex items-center justify-between">{l.label}<span className="arrow text-muted group-hover:text-accent-deep">→</span></div>
                 <div className="text-sm text-muted group-hover:text-accent-deep/70 mt-1">{DESCRIPTIONS[l.href]}</div>
+                {l.tabs && (
+                  <div className="flex flex-wrap gap-1.5 mt-4">
+                    {l.tabs.map((t) => (
+                      <span key={t.href} className="rounded-full bg-surface px-2.5 py-0.5 text-xs text-foreground">{t.label}</span>
+                    ))}
+                  </div>
+                )}
               </Link>
             ))}
           </div>
@@ -169,9 +176,9 @@ const DESCRIPTIONS: Record<string, string> = {
   "/calendar": "Plan batches and track ratios",
   "/research": "5x outlier log and keyword bank",
   "/hooks": "Hook stacks, 7 angles, templates",
-  "/scripts": "Authority, storytelling, signature series",
+  "/scripts": "Write, improve and browse scripts in one place",
   "/improve": "Rewrite and tighten any script",
-  "/carousels": "Slide-by-slide carousel builder",
+  "/carousels": "Build carousels and browse saved ones",
   "/production": "Formats, equipment, shot lists",
   "/funnel": "TOFU/MOFU/BOFU and captions",
   "/analytics": "Top performers and double-downs",

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logo from "./Logo";
 import { Icon, type IconName } from "./Icons";
-import { NAV_GROUPS, HIDDEN_CHROME } from "./nav-config";
+import { NAV_GROUPS, HIDDEN_CHROME, isItemActive } from "./nav-config";
 
 const FOOTER_LINKS: { href: string; label: string; icon: IconName }[] = [
   { href: "#refer", label: "Refer & Earn", icon: "gift" },
@@ -25,7 +25,7 @@ function NavLinks({ pathname, collapsed, onNavigate }: { pathname: string; colla
           )}
           <div className="flex flex-col gap-0.5">
             {g.items.map((s) => {
-              const active = pathname === s.href;
+              const active = isItemActive(s, pathname);
               return (
                 <Link
                   key={s.href}

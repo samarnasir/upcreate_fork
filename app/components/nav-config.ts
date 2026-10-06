@@ -1,6 +1,10 @@
 import type { IconName } from "./Icons";
 
-type Item = { href: string; label: string; icon: IconName };
+export type Tab = { href: string; label: string; description: string };
+
+// `tabs` marks an item that merges several closely related pages into one
+// sidebar entry; each page keeps its own route and shows the shared tab bar.
+type Item = { href: string; label: string; icon: IconName; tabs?: Tab[] };
 
 export const NAV_GROUPS: { title: string; items: Item[] }[] = [
   { title: "Overview", items: [{ href: "/dashboard", label: "Dashboard", icon: "home" }] },
@@ -16,10 +20,27 @@ export const NAV_GROUPS: { title: string; items: Item[] }[] = [
     title: "Create",
     items: [
       { href: "/hooks", label: "Hook Lab", icon: "hook" },
-      { href: "/scripts", label: "Script Studio", icon: "pen" },
-      { href: "/improve", label: "Script Improver", icon: "sparkle" },
-      { href: "/carousels", label: "Carousel Studio", icon: "layers" },
+      {
+        href: "/scripts",
+        label: "Scripts",
+        icon: "pen",
+        tabs: [
+          { href: "/scripts", label: "Write", description: "Authority, storytelling, signature series" },
+          { href: "/improve", label: "Improve", description: "Rewrite and tighten any script" },
+          { href: "/library", label: "Library", description: "Ready-made script library" },
+        ],
+      },
+      {
+        href: "/carousels",
+        label: "Carousels",
+        icon: "layers",
+        tabs: [
+          { href: "/carousels", label: "Create", description: "Slide-by-slide carousel builder" },
+          { href: "/carousel-library", label: "Library", description: "Saved and template carousels" },
+        ],
+      },
       { href: "/production", label: "Production", icon: "camera" },
+      { href: "/prompts", label: "Prompt Library", icon: "terminal" },
     ],
   },
   {
@@ -29,15 +50,19 @@ export const NAV_GROUPS: { title: string; items: Item[] }[] = [
       { href: "/analytics", label: "Analytics", icon: "chart" },
     ],
   },
-  {
-    title: "Library",
-    items: [
-      { href: "/library", label: "Scripts", icon: "book" },
-      { href: "/carousel-library", label: "Carousels", icon: "grid" },
-      { href: "/prompts", label: "Prompts", icon: "terminal" },
-    ],
-  },
 ];
+
+export function isItemActive(item: Item, pathname: string) {
+  return item.href === pathname || !!item.tabs?.some((t) => t.href === pathname);
+}
+
+export function findItem(pathname: string) {
+  for (const g of NAV_GROUPS) {
+    const item = g.items.find((i) => isItemActive(i, pathname));
+    if (item) return { group: g, item, tab: item.tabs?.find((t) => t.href === pathname) };
+  }
+  return null;
+}
 
 export const HIDDEN_CHROME = ["/login", "/signup", "/onboarding"];
 

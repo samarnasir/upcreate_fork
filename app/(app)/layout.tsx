@@ -8,6 +8,7 @@ import Nav from "@/app/components/Nav";
 import Tutorial from "@/app/components/Tutorial";
 import Topbar from "@/app/components/Topbar";
 import HelpBubble from "@/app/components/HelpBubble";
+import SectionTabs from "@/app/components/SectionTabs";
 
 export const metadata: Metadata = {
   title: "Upcreate",
@@ -32,7 +33,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Nav />
         <div className="flex-1 min-w-0 flex flex-col">
           <Topbar />
-          <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-8 md:px-10 md:py-10">{children}</main>
+          <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-8 md:px-10 md:py-10">
+            <SectionTabs />
+            {children}
+          </main>
         </div>
         <Tutorial />
         <HelpBubble />

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { logoutAction } from "@/lib/auth-actions";
 import { Icon } from "./Icons";
 import SettingsModal from "./SettingsModal";
-import { NAV_GROUPS, HIDDEN_CHROME } from "./nav-config";
+import { HIDDEN_CHROME, findItem } from "./nav-config";
 
 const NOTIFICATIONS = [
   { title: "Batch reminder", body: "3 videos are scheduled to film this week.", time: "2h" },
@@ -49,8 +49,9 @@ export default function Topbar() {
 
   if (HIDDEN_CHROME.includes(pathname)) return null;
 
-  const group = NAV_GROUPS.find((g) => g.items.some((i) => i.href === pathname));
-  const item = group?.items.find((i) => i.href === pathname);
+  const found = findItem(pathname);
+  const group = found?.group;
+  const item = found?.item;
 
   return (
     <>
@@ -67,7 +68,8 @@ export default function Topbar() {
         {group && (
           <>
             {group.title} <span className="mx-1.5">/</span>
-            <span className="text-foreground">{item?.label}</span>
+            <span className={found?.tab ? "" : "text-foreground"}>{item?.label}</span>
+            {found?.tab && (<><span className="mx-1.5">/</span><span className="text-foreground">{found.tab.label}</span></>)}
           </>
         )}
         {pathname === "/settings" && <span className="text-foreground">Settings</span>}
