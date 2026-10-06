@@ -19,3 +19,22 @@ body, input, button { font-family: 'Geist', sans-serif; font-weight: 400; font-s
   background: rgba(255,255,255,.18); transition: background .15s, color .15s; }
 .prompt button.active { background: #fff; color: #000; }
 .prompt button:not(.active):hover { background: rgba(255,255,255,.28); }
+
+/* Film grain over the hero video */
+@keyframes grain-shift {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-3%, 2%); }
+  50% { transform: translate(2%, -3%); }
+  75% { transform: translate(-2%, 3%); }
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.12;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain-shift 1s steps(4) infinite;
+}
